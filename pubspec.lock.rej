@@ -1,0 +1,16 @@
+diff a/pubspec.lock b/pubspec.lock	(rejected hunks)
+@@ -275,9 +275,11 @@
+   flutter_chat_ui:
+     dependency: "direct main"
+     description:
+-      name: flutter_chat_ui
+-      url: "https://pub.dartlang.org"
+-    source: hosted
++      path: "."
++      ref: HEAD
++      resolved-ref: d6693732e93e29804e2f5973bdc1247b235f2764
++      url: "https://github.com/taishi1999/flutter_chat_ui_edit"
++    source: git
+     version: "1.6.6"
+   flutter_firebase_chat_core:
+     dependency: "direct main"
