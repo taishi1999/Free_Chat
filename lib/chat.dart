@@ -32,7 +32,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          title: Text(widget.room.name ?? 'Chat'),
+          title: const Text('Chat'),
         ),
         body: StreamBuilder<types.Room>(
           initialData: widget.room,

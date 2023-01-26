@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'chat.dart';
 import 'firebase_options.dart';
 import 'login.dart';
-import 'my_page.dart';
 import 'users.dart';
 import 'util.dart';
 
@@ -33,9 +31,6 @@ class _RoomsPageState extends State<RoomsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    final usersData = FirebaseFirestore.instance.collection('users').doc(uid);
-
     if (_error) {
       return Container();
     }
@@ -47,46 +42,18 @@ class _RoomsPageState extends State<RoomsPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          InkWell(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const MyPage();
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _user == null
+                ? null
+                : () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (context) => const UsersPage(),
+                      ),
+                    );
                   },
-                ),
-              );
-            },
-            child: FutureBuilder<DocumentSnapshot>(
-              future: usersData.get(),
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot,
-              ) {
-                if (snapshot.hasError) {
-                  return Text("Something went wrong");
-                }
-
-                if (snapshot.hasData && !snapshot.data!.exists) {
-                  return Text("Document does not exist");
-                }
-
-                if (snapshot.connectionState == ConnectionState.done) {
-                  Map<String, dynamic> data =
-                      snapshot.data!.data() as Map<String, dynamic>;
-                  return CircleAvatar(
-                    backgroundImage: NetworkImage(data['imageUrl']),
-                  );
-                }
-
-                return Text("loading");
-              },
-            ),
-            // child: FutureBuilder(
-            //   builder: (context) {
-            //     return CircleAvatar(backgroundImage: NetworkImage());
-            //   }
-            // ),
           ),
         ],
         leading: IconButton(
@@ -166,20 +133,6 @@ class _RoomsPageState extends State<RoomsPage> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _user == null
-            ? null
-            : () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (context) => const UsersPage(),
-                  ),
-                );
-              },
-        tooltip: 'Add User',
-        child: Icon(Icons.add),
-      ),
     );
   }
 
