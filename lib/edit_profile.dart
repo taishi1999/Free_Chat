@@ -1,6 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'util.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String title;
@@ -15,18 +21,22 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _imageController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
+  final picker = ImagePicker();
+  File? imageFile;
+  bool isSelected = false;
+  bool isLoading = false;
+  String? uid;
+  DocumentReference<Map<String, dynamic>>? userData;
 
   @override
   void initState() {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    final usersData = FirebaseFirestore.instance.collection('users').doc(uid);
+    uid = FirebaseAuth.instance.currentUser?.uid;
+    userData = FirebaseFirestore.instance.collection('users').doc(uid);
 
-    usersData.get().then((DocumentSnapshot documentSnapshot) {
+    userData?.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        _imageController.text = documentSnapshot.get('imageUrl');
         _firstNameController.text = documentSnapshot.get('firstName');
         _lastNameController.text = documentSnapshot.get('lastName');
       } else {
@@ -38,17 +48,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    final usersData = FirebaseFirestore.instance.collection('users').doc(uid);
+    Future<void> _selectImage() async {
+      final PickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (PickedFile != null) {
+        imageFile = File(PickedFile.path);
+        isSelected = true;
+      }
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('マイページ')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(widget.title),
+      ),
       body: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
             FutureBuilder<DocumentSnapshot>(
-              future: usersData.get(),
+              future: userData?.get(),
               builder: (
                 BuildContext context,
                 AsyncSnapshot<DocumentSnapshot> snapshot,
@@ -66,38 +85,87 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       snapshot.data!.data() as Map<String, dynamic>;
                   return Column(
                     children: [
-                      Text('画像'),
-                      TextField(
-                        controller: _imageController,
+                      Text('アイコン画像'),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        height: 70,
+                        width: 70,
+                        child: InkWell(
+                          onTap: () async {
+                            await _selectImage();
+                            setState(() {});
+                          },
+                          child: CircleAvatar(
+                            backgroundImage: imageFile != null
+                                ? Image.file(imageFile!).image
+                                : NetworkImage(data['imageUrl']),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
                       ),
                       Text('姓'),
                       TextField(
                         controller: _firstNameController,
                       ),
+                      SizedBox(
+                        height: 30,
+                      ),
                       Text('名'),
                       TextField(
                         controller: _lastNameController,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(uid)
-                              .update({
-                            'imageUrl': _imageController.text,
-                            'firstName': _firstNameController.text,
-                            'lastName': _lastNameController.text,
-                          }).then((value) => Navigator.of(context).pop());
-                        },
-                        child: Text(
-                          '更新',
-                        ),
                       ),
                     ],
                   );
                 }
                 return Text('loading');
               },
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      Map<String, dynamic> data = {
+                        'firstName': _firstNameController.text,
+                        'lastName': _lastNameController.text,
+                      };
+                      try {
+                        //アイコン画像を変更していたらcloud Storageへアップロードする
+                        if (isSelected) {
+                          final reference = FirebaseStorage.instance
+                              .ref('users/${uid!}/imageUrl');
+                          await reference.putFile(imageFile!);
+                          final uri = await reference.getDownloadURL();
+                          data['imageUrl'] = uri;
+                        }
+
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid)
+                            .update(data)
+                            .then((value) {
+                          Navigator.of(context).pop();
+                        });
+                      } catch (e) {
+                        print(e);
+                      } finally {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      }
+                    },
+              child: const Text(
+                '更新',
+              ),
             ),
           ],
         ),

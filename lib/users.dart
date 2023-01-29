@@ -1,3 +1,4 @@
+import 'package:example/rooms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -12,6 +13,16 @@ class UsersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => RoomsPage(),
+                ),
+              );
+            },
+          ),
           systemOverlayStyle: SystemUiOverlayStyle.light,
           title: const Text('Users'),
         ),
