@@ -53,7 +53,8 @@ String getVerboseDateTimeRepresentation(
 }
 
 /// 日付を表示する（flutter_chat_ui_editと同じ形式）.
-String getDateTimeRepresentation(int? timestamp) =>
-    getVerboseDateTimeRepresentation(
-      DateTime.fromMillisecondsSinceEpoch(timestamp!),
-    );
+String getDateTimeRepresentation(int? timestamp) => timestamp == null
+    ? ''
+    : getVerboseDateTimeRepresentation(
+        DateTime.fromMillisecondsSinceEpoch(timestamp),
+      );
