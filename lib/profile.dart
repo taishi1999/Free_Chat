@@ -12,8 +12,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'chat.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key, required this.uid});
+  const ProfilePage({
+    super.key,
+    required this.uid,
+    this.hasAppBar = true,
+    this.hasBackButton = true,
+  });
   final String uid;
+  final bool hasAppBar;
+  final bool hasBackButton;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -27,15 +34,49 @@ class _ProfilePageState extends State<ProfilePage> {
     final userData =
         FirebaseFirestore.instance.collection('users').doc(widget.uid).get();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('プロフィール'),
-      ),
-      body: SizedBox.expand(
+    return widget.hasAppBar
+        ? Scaffold(
+            appBar: AppBar(
+              title: Text('プロフィール'),
+            ),
+            body: _BodyContent(
+              userData: userData,
+              widget: widget,
+              users: users,
+              hasBackButton: widget.hasBackButton,
+            ),
+          )
+        : _BodyContent(
+            userData: userData,
+            widget: widget,
+            users: users,
+            hasBackButton: widget.hasBackButton,
+          );
+  }
+}
+
+class _BodyContent extends StatelessWidget {
+  const _BodyContent({
+    super.key,
+    required this.userData,
+    required this.widget,
+    required this.users,
+    required this.hasBackButton,
+  });
+
+  final Future<DocumentSnapshot<Map<String, dynamic>>> userData;
+  final ProfilePage widget;
+  final Stream<QuerySnapshot<Map<String, dynamic>>> users;
+  final bool hasBackButton;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.expand(
         child: FutureBuilder<DocumentSnapshot>(
           future: userData,
-          builder:
-              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          builder: (
+            BuildContext context,
+            AsyncSnapshot<DocumentSnapshot> snapshot,
+          ) {
             if (snapshot.hasError) {
               return Text("Something went wrong");
             }
@@ -54,6 +95,22 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Row(
                         children: [
+                          hasBackButton
+                              ? InkWell(
+                                  child: Icon(Icons.arrow_back),
+                                  onTap: () async {
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    await prefs.remove('uid');
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RoomsPage(),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : SizedBox.shrink(),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: SizedBox(
@@ -241,7 +298,5 @@ class _ProfilePageState extends State<ProfilePage> {
             return Text("loading");
           },
         ),
-      ),
-    );
-  }
+      );
 }

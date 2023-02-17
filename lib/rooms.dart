@@ -59,7 +59,10 @@ class _RoomsPageState extends State<RoomsPage> {
                 if (snapshot.hasData) {
                   final uidParam = snapshot.data;
                   if (uidParam != null) {
-                    return ProfilePage(uid: uidParam);
+                    return ProfilePage(
+                      uid: uidParam,
+                      hasAppBar: false,
+                    );
                   } else {
                     return _displayRoomList();
                   }
@@ -159,6 +162,7 @@ class _RoomsPageState extends State<RoomsPage> {
             MaterialPageRoute(
               builder: (context) => ProfilePage(
                 uid: id,
+                hasBackButton: false,
               ),
             ),
           );
