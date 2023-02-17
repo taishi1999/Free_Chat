@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chat.dart';
-import 'firebase_options.dart';
 import 'login.dart';
 import 'my_page.dart';
+import 'profile.dart';
 import 'users.dart';
 import 'util.dart';
 
@@ -48,22 +48,41 @@ class _RoomsPageState extends State<RoomsPage> {
     return Scaffold(
       appBar: _AppBar(
         title: 'メッセージ',
-        userData: userData,
       ),
-      body: _Body(
-        user: _user,
-      ),
+      body: _user != null
+          ? FutureBuilder(
+              future: getDinamicLinkUidParam(),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<String?> snapshot,
+              ) {
+                if (snapshot.hasData) {
+                  final uidParam = snapshot.data;
+                  if (uidParam != null) {
+                    return ProfilePage(uid: uidParam);
+                  } else {
+                    return _displayRoomList();
+                  }
+                } else {
+                  return _displayRoomList();
+                }
+              },
+            )
+          : _navigatLogin(context),
       floatingActionButton: _FloatingActionButton(
         user: _user,
       ),
     );
   }
 
+  Future<String?> getDinamicLinkUidParam() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? uidParam = await prefs.getString('uid');
+    return uidParam;
+  }
+
   void initializeFlutterFire() async {
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
       FirebaseAuth.instance.authStateChanges().listen((User? user) {
         setState(() {
           _user = user;
@@ -79,8 +98,159 @@ class _RoomsPageState extends State<RoomsPage> {
     }
   }
 
-  void logout() async {
-    await FirebaseAuth.instance.signOut();
+  // 未ログイン時のログインページへの遷移.
+  Widget _navigatLogin(BuildContext context) => Container(
+        alignment: Alignment.center,
+        margin: const EdgeInsets.only(
+          bottom: 200,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Not authenticated'),
+            TextButton(
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    fullscreenDialog: true,
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              },
+              child: const Text('Login'),
+            ),
+          ],
+        ),
+      );
+
+  // アイコンの表示.
+  Widget _buildAvatar(types.Room room) {
+    var color = Colors.transparent;
+
+    if (room.type == types.RoomType.direct) {
+      try {
+        final otherUser = room.users.firstWhere(
+          (u) => u.id != _user!.uid,
+        );
+
+        color = getUserAvatarNameColor(otherUser);
+      } catch (e) {
+        // Do nothing if other user is not found.
+      }
+    }
+
+    final hasImage = room.imageUrl != null;
+    final name = room.name ?? '';
+
+    String id = '';
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    for (var user in room.users) {
+      if (uid != user.id) {
+        id = user.id;
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(right: 16),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                uid: id,
+              ),
+            ),
+          );
+        },
+        child: CircleAvatar(
+          backgroundColor: hasImage ? Colors.transparent : color,
+          backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
+          radius: 20,
+          child: !hasImage
+              ? Text(
+                  name.isEmpty ? '' : name[0].toUpperCase(),
+                  style: const TextStyle(color: Colors.white),
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+
+  // Room一覧の表示.
+  Widget _displayRoomList() => StreamBuilder<List<types.Room>>(
+        stream: FirebaseChatCore.instance.rooms(),
+        initialData: const [],
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Container(
+              alignment: Alignment.center,
+              margin: const EdgeInsets.only(
+                bottom: 200,
+              ),
+              child: const Text('No rooms'),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final room = snapshot.data![index];
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(
+                        room: room,
+                      ),
+                    ),
+                  );
+                },
+                child: _displayRoom(room),
+              );
+            },
+          );
+        },
+      );
+
+  // 各Roomの表示.
+  Widget _displayRoom(types.Room room) => StreamBuilder(
+        stream: FirebaseChatCore.instance.messages(room, limit: 1),
+        initialData: const [],
+        builder: (context, snapshot) {
+          final loaded = (snapshot.hasData && snapshot.data!.isNotEmpty);
+          final types.Message? message = loaded ? snapshot.data![0] : null;
+          return ListTile(
+            leading: _buildAvatar(room),
+            title: Text(
+              room.name ?? '',
+              maxLines: 1,
+            ),
+            trailing: Text(
+              loaded ? getDateTimeRepresentation(message!.createdAt) : '',
+            ),
+            subtitle: Text(
+              loaded
+                  ? '${getUserName(message!.author)}:${_getDisplayMessage(message)}'
+                  : '',
+              maxLines: 1,
+            ),
+          );
+        },
+      );
+
+  // メッセージの表示.
+  String _getDisplayMessage(types.Message message) {
+    if (message is types.TextMessage) {
+      return message.text;
+    } else {
+      final currentUserIsAuthor = _user!.uid == message.author.id;
+      final typeString = (message is types.ImageMessage) ? '画像' : 'ファイル';
+      final actionString = (currentUserIsAuthor) ? '送信' : '受信';
+      return '$typeStringを$actionStringしました。';
+    }
   }
 }
 
@@ -127,14 +297,12 @@ class _SearchTextField extends StatelessWidget {
 }
 
 class _AppBar extends StatefulWidget implements PreferredSizeWidget {
-  const _AppBar({
+  _AppBar({
     Key? key,
     required this.title,
-    required this.userData,
   }) : super(key: key);
 
   final String title;
-  final Future<DocumentSnapshot<Map<String, dynamic>>>? userData;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -145,11 +313,31 @@ class _AppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _AppBarState extends State<_AppBar> {
   bool? searchBoolean;
+  Future<DocumentSnapshot<Map<String, dynamic>>>? userData;
 
   @override
   void initState() {
+    try {
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        setState(() {
+          final uid = FirebaseAuth.instance.currentUser?.uid;
+          userData =
+              FirebaseFirestore.instance.collection('users').doc(uid).get();
+        });
+      });
+    } catch (e) {
+      setState(() {
+        print(e);
+      });
+    }
     searchBoolean = false;
     super.initState();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    userData = FirebaseFirestore.instance.collection('users').doc(uid).get();
+  }
+
+  void logout() {
+    FirebaseAuth.instance.signOut();
   }
 
   @override
@@ -175,55 +363,68 @@ class _AppBarState extends State<_AppBar> {
                   },
                 ),
               ],
-        leading: InkWell(
-          onTap: () {
-            Navigator.of(context).push(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const MyPage(),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  //final Offset begin = Offset(1.0, 0.0); // 右から左
-                  final Offset begin = Offset(-1.0, 0.0); // 左から右
-                  final Offset end = Offset.zero;
-                  final Animatable<Offset> tween = Tween(begin: begin, end: end)
-                      .chain(CurveTween(curve: Curves.easeInOut));
-                  final Animation<Offset> offsetAnimation =
-                      animation.drive(tween);
-                  return SlideTransition(
-                    position: offsetAnimation,
-                    child: child,
-                  );
-                },
-              ),
-            );
-          },
-          child: FutureBuilder<DocumentSnapshot>(
-            future: widget.userData,
-            builder: (
-              BuildContext context,
-              AsyncSnapshot<DocumentSnapshot> snapshot,
-            ) {
-              if (snapshot.hasError) {
-                return const Text('Something went wrong');
-              }
-
-              if (snapshot.hasData && !snapshot.data!.exists) {
-                return const Text('Document does not exist');
-              }
-
-              if (snapshot.connectionState == ConnectionState.done) {
-                final data = snapshot.data!.data() as Map<String, dynamic>;
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(data['imageUrl']),
+        leading: FutureBuilder<DocumentSnapshot>(
+          future: userData,
+          builder: (
+            BuildContext context,
+            AsyncSnapshot<DocumentSnapshot> snapshot,
+          ) {
+            if (snapshot.hasError) {
+              return Container();
+            }
+            if (snapshot.hasData && !snapshot.data!.exists) {
+              return Container();
+            }
+            if (snapshot.connectionState == ConnectionState.done) {
+              final data = snapshot.data!.data() as Map<String, dynamic>;
+              return PopupMenuButton(
+                icon: CircleAvatar(
+                  backgroundImage: NetworkImage(data['imageUrl']),
+                ),
+                itemBuilder: (context) => [
+                  const PopupMenuItem<int>(
+                    value: 0,
+                    child: Text('マイページ'),
                   ),
-                );
-              }
-              return const Text('loading');
-            },
-          ),
+                  const PopupMenuItem<int>(
+                    value: 1,
+                    child: Text('ログアウト'),
+                  ),
+                ],
+                onSelected: (value) async {
+                  if (value == 0) {
+                    await Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const MyPage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          //final Offset begin = Offset(1.0, 0.0); // 右から左
+                          final Offset begin = Offset(-1.0, 0.0); // 左から右
+                          final Offset end = Offset.zero;
+                          final Animatable<Offset> tween =
+                              Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: Curves.easeInOut));
+                          final Animation<Offset> offsetAnimation =
+                              animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  } else if (value == 1) {
+                    logout();
+                    setState(() {
+                      userData = null;
+                    });
+                  }
+                },
+              );
+            }
+            return Container();
+          },
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
         centerTitle: true,
@@ -232,120 +433,6 @@ class _AppBarState extends State<_AppBar> {
           searchBoolean: searchBoolean!,
         ),
       );
-}
-
-class _Body extends StatelessWidget {
-  const _Body({
-    Key? key,
-    required this.user,
-  }) : super(key: key);
-
-  final User? user;
-
-  @override
-  Widget build(BuildContext context) => user == null
-      ? Container(
-          alignment: Alignment.center,
-          margin: const EdgeInsets.only(
-            bottom: 200,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Not authenticated'),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      fullscreenDialog: true,
-                      builder: (context) => const LoginPage(),
-                    ),
-                  );
-                },
-                child: const Text('Login'),
-              ),
-            ],
-          ),
-        )
-      : StreamBuilder<List<types.Room>>(
-          stream: FirebaseChatCore.instance.rooms(),
-          initialData: const [],
-          builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Container(
-                alignment: Alignment.center,
-                margin: const EdgeInsets.only(
-                  bottom: 200,
-                ),
-                child: const Text('No rooms'),
-              );
-            }
-
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final room = snapshot.data![index];
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ChatPage(
-                          room: room,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        _buildAvatar(room),
-                        Text(room.name ?? ''),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-  Widget _buildAvatar(types.Room room) {
-    var color = Colors.transparent;
-
-    if (room.type == types.RoomType.direct) {
-      try {
-        final otherUser = room.users.firstWhere(
-          (u) => u.id != user!.uid,
-        );
-
-        color = getUserAvatarNameColor(otherUser);
-      } catch (e) {
-        // Do nothing if other user is not found.
-      }
-    }
-
-    final hasImage = room.imageUrl != null;
-    final name = room.name ?? '';
-
-    return Container(
-      margin: const EdgeInsets.only(right: 16),
-      child: CircleAvatar(
-        backgroundColor: hasImage ? Colors.transparent : color,
-        backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
-        radius: 20,
-        child: !hasImage
-            ? Text(
-                name.isEmpty ? '' : name[0].toUpperCase(),
-                style: const TextStyle(color: Colors.white),
-              )
-            : null,
-      ),
-    );
-  }
 }
 
 class _FloatingActionButton extends StatelessWidget {
