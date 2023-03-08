@@ -167,8 +167,7 @@ class _BodyState extends State<_Body> {
                                                 'https://3357dynamiclinks.page.link/',
                                             androidParameters:
                                                 const AndroidParameters(
-                                              packageName:
-                                                  'com.example.app.android',
+                                              packageName: 'com.example.chat',
                                               minimumVersion: 30,
                                             ),
                                             iosParameters: const IOSParameters(
@@ -197,7 +196,6 @@ class _BodyState extends State<_Body> {
                                                   .buildShortLink(
                                             dynamicLinkParams,
                                           );
-
                                           Share.share(
                                               dynamicLink.shortUrl.toString());
                                         },
