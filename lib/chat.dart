@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,7 @@ class _ChatPageState extends State<ChatPage> {
               messages: snapshot.data ?? [],
               onAttachmentPressed: _handleAtachmentPressed,
               onMessageTap: _handleMessageTap,
+              onPenPressed: _handlePenPressed,
               onPreviewDataFetched: _handlePreviewDataFetched,
               onSendPressed: _handleSendPressed,
               user: types.User(
@@ -201,6 +203,26 @@ class _ChatPageState extends State<ChatPage> {
 
       await OpenFilex.open(localPath);
     }
+  }
+
+  void _handlePenPressed([List<dynamic>? paintList]) {
+    // setState(() {
+    //   _isAppBarVisible = !_isAppBarVisible;
+    // });
+    print('_handlePenPressed');
+    if (paintList == null || paintList.isEmpty) {
+      return;
+    }
+    final partialText = types.PartialText(
+      text: 'paint',
+      metadata: {
+        MessageMetadata.painter.name: paintList,
+      },
+    );
+    FirebaseChatCore.instance.sendMessage(
+      partialText,
+      widget.room.id,
+    );
   }
 
   void _handlePreviewDataFetched(
