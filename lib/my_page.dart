@@ -161,14 +161,14 @@ class _BodyState extends State<_Body> {
                                           final dynamicLinkParams =
                                               DynamicLinkParameters(
                                             link: Uri.parse(
-                                              'https://3357dynamiclinks.page.link/test?uid=${uid}',
+                                              'https://3357dynamiclinks.page.link/testaaaaa?uid=${uid}',
                                             ),
                                             uriPrefix:
                                                 'https://3357dynamiclinks.page.link/',
                                             androidParameters:
                                                 const AndroidParameters(
-                                              packageName: 'com.example.chat',
-                                              minimumVersion: 30,
+                                              packageName: 'com.example',
+                                              //minimumVersion: 30,
                                             ),
                                             iosParameters: const IOSParameters(
                                               bundleId: 'com.example.app.ios',
