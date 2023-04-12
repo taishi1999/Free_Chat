@@ -128,6 +128,15 @@ class _BodyState extends State<_Body> {
                               width: 70,
                               child: CircleAvatar(
                                 backgroundImage: NetworkImage(data['imageUrl']),
+                                onBackgroundImageError: (error, stackTrace) {
+                                  assert(() {
+                                    print('=' * 50);
+                                    print(error.toString());
+                                    print(stackTrace.toString());
+                                    print('=' * 50);
+                                    return true;
+                                  }());
+                                },
                               ),
                             ),
                           ),
