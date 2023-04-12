@@ -101,6 +101,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             backgroundImage: imageFile != null
                                 ? Image.file(imageFile!).image
                                 : NetworkImage(data['imageUrl']),
+                            onBackgroundImageError: (error, stackTrace) {
+                              assert(() {
+                                print('=' * 50);
+                                print(error.toString());
+                                print(stackTrace.toString());
+                                print('=' * 50);
+                                return true;
+                              }());
+                            },
                           ),
                         ),
                       ),

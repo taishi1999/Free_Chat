@@ -78,6 +78,15 @@ class UsersPage extends StatelessWidget {
       child: CircleAvatar(
         backgroundColor: hasImage ? Colors.transparent : color,
         backgroundImage: hasImage ? NetworkImage(user.imageUrl!) : null,
+        onBackgroundImageError: (error, stackTrace) {
+          assert(() {
+            print('=' * 50);
+            print(error.toString());
+            print(stackTrace.toString());
+            print('=' * 50);
+            return true;
+          }());
+        },
         radius: 20,
         child: !hasImage
             ? Text(

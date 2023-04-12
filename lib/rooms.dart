@@ -125,6 +125,15 @@ class _RoomsPageState extends State<RoomsPage> {
       child: CircleAvatar(
         backgroundColor: hasImage ? Colors.transparent : color,
         backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
+        onBackgroundImageError: (error, stackTrace) {
+          assert(() {
+            print('=' * 50);
+            print(error.toString());
+            print(stackTrace.toString());
+            print('=' * 50);
+            return true;
+          }());
+        },
         radius: 20,
         child: !hasImage
             ? Text(
@@ -346,6 +355,15 @@ class _AppBarState extends State<_AppBar> {
                   padding: const EdgeInsets.all(10.0),
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(data['imageUrl']),
+                    onBackgroundImageError: (error, stackTrace) {
+                      assert(() {
+                        print('=' * 50);
+                        print(error.toString());
+                        print(stackTrace.toString());
+                        print('=' * 50);
+                        return true;
+                      }());
+                    },
                   ),
                 );
               }
