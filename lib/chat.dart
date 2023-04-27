@@ -205,18 +205,18 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _handlePenPressed([List<dynamic>? paintList]) {
+  void _handlePenPressed([Map<String, dynamic>? mapPaint]) {
     // setState(() {
     //   _isAppBarVisible = !_isAppBarVisible;
     // });
     print('_handlePenPressed');
-    if (paintList == null || paintList.isEmpty) {
+    if (mapPaint == null || mapPaint.isEmpty) {
       return;
     }
     final partialText = types.PartialText(
       text: 'paint',
       metadata: {
-        MessageMetadata.painter.name: paintList,
+        MessageMetadata.painter.name: mapPaint,
       },
     );
     FirebaseChatCore.instance.sendMessage(
