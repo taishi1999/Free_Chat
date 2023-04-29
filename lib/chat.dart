@@ -28,13 +28,17 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   bool _isAttachmentUploading = false;
+  bool _isAppBarVisible = true;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          title: Text(widget.room.name ?? 'Chat'),
-        ),
+        appBar: _isAppBarVisible
+            ? AppBar(
+                backgroundColor: Color(0xff1d1c21),
+                systemOverlayStyle: SystemUiOverlayStyle.light,
+                title: Text(widget.room.name ?? 'Chat'),
+              )
+            : null,
         body: StreamBuilder<types.Room>(
           initialData: widget.room,
           stream: FirebaseChatCore.instance.room(widget.room.id),
@@ -49,6 +53,11 @@ class _ChatPageState extends State<ChatPage> {
               onPenPressed: _handlePenPressed,
               onPreviewDataFetched: _handlePreviewDataFetched,
               onSendPressed: _handleSendPressed,
+              showUserAvatars: true,
+              showUserNames: true,
+              scrollPhysics: _isAppBarVisible
+                  ? ClampingScrollPhysics()
+                  : NeverScrollableScrollPhysics(),
               user: types.User(
                 id: FirebaseChatCore.instance.firebaseUser?.uid ?? '',
               ),
@@ -206,9 +215,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handlePenPressed([List<dynamic>? paintList]) {
-    // setState(() {
-    //   _isAppBarVisible = !_isAppBarVisible;
-    // });
+    setState(() {
+      _isAppBarVisible = !_isAppBarVisible;
+    });
     print('_handlePenPressed');
     if (paintList == null || paintList.isEmpty) {
       return;

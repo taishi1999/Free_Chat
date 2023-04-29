@@ -64,6 +64,7 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        backgroundColor: Color(0xff1d1c21),
         leading: Container(),
         centerTitle: true,
         title: const Text('マイページ'),

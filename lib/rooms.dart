@@ -282,6 +282,7 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        backgroundColor: Color(0xff1d1c21),
         actions: !searchBoolean!
             ? [
                 IconButton(
@@ -372,6 +373,7 @@ class _FloatingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FloatingActionButton(
+        backgroundColor: Color(0xff1d1c21),
         onPressed: user == null
             ? null
             : () async {
@@ -397,12 +399,12 @@ class _FloatingActionButton extends StatelessWidget {
                       leading: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
-                          color: Colors.blue,
+                          //color: Colors.grey,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.add_reaction_outlined,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios),
@@ -423,12 +425,12 @@ class _FloatingActionButton extends StatelessWidget {
                       leading: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
-                          color: Colors.blue,
+                          //color: Colors.blue,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.groups,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios),

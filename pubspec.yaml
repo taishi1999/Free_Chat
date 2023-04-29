@@ -41,7 +41,8 @@ dependencies:
     sdk: flutter
   flutter_chat_types: ^3.6.0
   flutter_chat_ui:
-    git: https://github.com/taishi1999/flutter_chat_ui_edit
+    #git: https://github.com/taishi1999/flutter_chat_ui_edit
+    path: ../flutter_chat_ui_edit
   flutter_firebase_chat_core: ^1.6.4
   http: ^0.13.5
   image_picker: ^0.8.6
