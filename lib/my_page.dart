@@ -64,10 +64,11 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        //backgroundColor: Colors.transparent,
         backgroundColor: Color(0xff1d1c21),
         leading: Container(),
-        centerTitle: true,
-        title: const Text('マイページ'),
+        centerTitle: false,
+        //title: const Text('マイページ'),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios),
@@ -97,7 +98,7 @@ class _BodyState extends State<_Body> {
   @override
   Widget build(BuildContext context) => Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
             FutureBuilder<DocumentSnapshot>(
@@ -123,13 +124,11 @@ class _BodyState extends State<_Body> {
                           Expanded(
                             child: Container(),
                           ),
-                          Expanded(
-                            child: SizedBox(
-                              height: 70,
-                              width: 70,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(data['imageUrl']),
-                              ),
+                          SizedBox(
+                            height: 70,
+                            width: 70,
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(data['imageUrl']),
                             ),
                           ),
                           Expanded(
@@ -138,8 +137,8 @@ class _BodyState extends State<_Body> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   SizedBox(
-                                    height: 20,
-                                    width: 20,
+                                    height: 32,
+                                    width: 32,
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color:
@@ -150,7 +149,7 @@ class _BodyState extends State<_Body> {
                                         padding: EdgeInsets.all(0.0),
                                         icon: const Icon(
                                           Icons.qr_code,
-                                          size: 10,
+                                          size: 16,
                                           color: Color.fromARGB(
                                               255, 101, 101, 101),
                                         ),
@@ -161,11 +160,11 @@ class _BodyState extends State<_Body> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    width: 5,
+                                    width: 8,
                                   ),
                                   SizedBox(
-                                    height: 20,
-                                    width: 20,
+                                    height: 32,
+                                    width: 32,
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color:
@@ -176,7 +175,7 @@ class _BodyState extends State<_Body> {
                                         padding: EdgeInsets.all(0.0),
                                         icon: const Icon(
                                           Icons.create_rounded,
-                                          size: 10,
+                                          size: 16,
                                           color: Color.fromARGB(
                                               255, 101, 101, 101),
                                         ),
@@ -185,7 +184,7 @@ class _BodyState extends State<_Body> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   const EditProfilePage(
-                                                title: 'プロフィール編集',
+                                                title: '編集',
                                               ),
                                             ),
                                           );
@@ -201,10 +200,11 @@ class _BodyState extends State<_Body> {
                         ],
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 16,
                       ),
                       Text(
-                        data['firstName'] + ' ' + data['lastName'],
+                        data['firstName'],
+                        //data['firstName'] + ' ' + data['lastName'],
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,

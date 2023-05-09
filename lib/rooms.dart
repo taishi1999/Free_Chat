@@ -11,6 +11,8 @@ import 'my_page.dart';
 import 'users.dart';
 import 'util.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 class RoomsPage extends StatefulWidget {
   const RoomsPage({super.key});
 
@@ -356,10 +358,19 @@ class _AppBarState extends State<_AppBar> {
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
         centerTitle: true,
-        title: _SearchTextField(
-          title: widget.title,
-          searchBoolean: searchBoolean!,
+        title: Text(
+          widget.title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        // title: _SearchTextField(
+
+        //   title: widget.title,
+        //   searchBoolean: searchBoolean!,
+        // ),
       );
 }
 
@@ -402,10 +413,20 @@ class _FloatingActionButton extends StatelessWidget {
                           //color: Colors.grey,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.add_reaction_outlined,
+                        // child: const Icon(
+                        //   Icons.add_reaction_outlined,
+                        //   color: Colors.black,
+                        // ),
+                        child: SvgPicture.asset(
+                          'images/user_add.svg',
                           color: Colors.black,
                         ),
+                        // child: AssetImage('images/user_add.svg') != null
+                        //     ? Image(
+                        //         color: Colors.black,
+                        //         image: AssetImage('images/user_add.svg'),
+                        //       )
+                        //     : Container(),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios),
                       title: const Text(
@@ -428,8 +449,12 @@ class _FloatingActionButton extends StatelessWidget {
                           //color: Colors.blue,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.groups,
+                        // child: const Icon(
+                        //   Icons.groups,
+                        //   color: Colors.black,
+                        // ),
+                        child: SvgPicture.asset(
+                          'images/users.svg',
                           color: Colors.black,
                         ),
                       ),

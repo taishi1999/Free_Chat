@@ -44,6 +44,7 @@ dependencies:
     #git: https://github.com/taishi1999/flutter_chat_ui_edit
     path: ../flutter_chat_ui_edit
   flutter_firebase_chat_core: ^1.6.4
+  #flutter_chat_ui_edit: path: ../flutter_chat_ui_edit
   http: ^0.13.5
   image_picker: ^0.8.6
   intl: ^0.17.0
@@ -51,6 +52,7 @@ dependencies:
   open_filex: ^4.2.2
   path_provider: ^2.0.11
   cloud_firestore: ^4.3.1
+  flutter_svg: ^0.22.0
 
 dev_dependencies:
   dart_code_metrics: ^4.21.3
@@ -74,9 +76,24 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    #- packages/flutter_chat_ui_edit/lib/assets/icon-pen.png
+    - images/undo.png
+    - images/undo.svg
+    - images/redo.svg
+    - images/camera.png
+    - images/camera.svg
+    - images/image.png
+    - images/image.svg
+    - images/pen.png
+    - images/pen.svg
+    - images/user_add.png
+    - images/user_add.svg
+    - images/users.png
+    - images/users.svg
+    - images/send_circle_blue.png
+    - images/send_circle_blue_32.png
+    - images/send_circle_blue_32.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -14,6 +14,8 @@ import 'package:mime/mime.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 class ChatPage extends StatefulWidget {
   const ChatPage({
     super.key,
@@ -34,6 +36,13 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: _isAppBarVisible
             ? AppBar(
+                // leading: Image.asset(
+                //   'assets/icon-pen.png',
+                //   color: Colors.black,
+                //   package: 'flutter_chat_ui_edit',
+                // ),
+
+                //leading: Image.asset('images/icon-pen.png'),
                 backgroundColor: Color(0xff1d1c21),
                 systemOverlayStyle: SystemUiOverlayStyle.light,
                 title: Text(widget.room.name ?? 'Chat'),
@@ -46,6 +55,26 @@ class _ChatPageState extends State<ChatPage> {
             initialData: const [],
             stream: FirebaseChatCore.instance.messages(snapshot.data!),
             builder: (context, snapshot) => Chat(
+              penIcon: SvgPicture.asset(
+                'images/pen.svg',
+                //color: Colors.black,
+              ),
+              //penIcon: AssetImage('images/pen.png'),
+              imageIcon: SvgPicture.asset(
+                'images/image.svg',
+                //color: Colors.black,
+              ),
+              undoIcon: (bool b) {
+                return SvgPicture.asset(
+                  'images/undo.svg',
+                  color: b ? Colors.grey[700] : Colors.white,
+                );
+              },
+              sendIcon: SvgPicture.asset(
+                'images/send_circle_blue_32.svg',
+                //color: Colors.black,
+              ),
+              //sendIcon: AssetImage('images/send_circle_blue_32.png'),
               isAttachmentUploading: _isAttachmentUploading,
               messages: snapshot.data ?? [],
               onAttachmentPressed: _handleAtachmentPressed,
@@ -67,46 +96,47 @@ class _ChatPageState extends State<ChatPage> {
       );
 
   void _handleAtachmentPressed() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) => SafeArea(
-        child: SizedBox(
-          height: 144,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _handleImageSelection();
-                },
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Photo'),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _handleFileSelection();
-                },
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('File'),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Cancel'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    _handleImageSelection();
+    // showModalBottomSheet<void>(
+    //   context: context,
+    //   builder: (BuildContext context) => SafeArea(
+    //     child: SizedBox(
+    //       height: 144,
+    //       child: Column(
+    //         crossAxisAlignment: CrossAxisAlignment.stretch,
+    //         children: <Widget>[
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.pop(context);
+    //               _handleImageSelection();
+    //             },
+    //             child: const Align(
+    //               alignment: Alignment.centerLeft,
+    //               child: Text('Photo'),
+    //             ),
+    //           ),
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.pop(context);
+    //               _handleFileSelection();
+    //             },
+    //             child: const Align(
+    //               alignment: Alignment.centerLeft,
+    //               child: Text('File'),
+    //             ),
+    //           ),
+    //           TextButton(
+    //             onPressed: () => Navigator.pop(context),
+    //             child: const Align(
+    //               alignment: Alignment.centerLeft,
+    //               child: Text('Cancel'),
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   void _handleFileSelection() async {
@@ -214,18 +244,18 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _handlePenPressed([List<dynamic>? paintList]) {
+  void _handlePenPressed([Map<String, dynamic>? mapPaint]) {
     setState(() {
       _isAppBarVisible = !_isAppBarVisible;
     });
     print('_handlePenPressed');
-    if (paintList == null || paintList.isEmpty) {
+    if (mapPaint == null || mapPaint.isEmpty) {
       return;
     }
     final partialText = types.PartialText(
       text: 'paint',
       metadata: {
-        MessageMetadata.painter.name: paintList,
+        MessageMetadata.painter.name: mapPaint,
       },
     );
     FirebaseChatCore.instance.sendMessage(

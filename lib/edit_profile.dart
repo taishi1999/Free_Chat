@@ -58,11 +58,65 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xff1d1c21),
         centerTitle: true,
-        title: Text(widget.title),
+        actions: [
+          TextButton(
+            onPressed: isLoading
+                ? null
+                : () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    Map<String, dynamic> data = {
+                      'firstName': _firstNameController.text,
+                      //'lastName': _lastNameController.text,
+                    };
+                    try {
+                      //アイコン画像を変更していたらcloud Storageへアップロードする
+                      if (isSelected) {
+                        final reference = FirebaseStorage.instance
+                            .ref('users/${uid!}/imageUrl');
+                        await reference.putFile(imageFile!);
+                        final uri = await reference.getDownloadURL();
+                        data['imageUrl'] = uri;
+                      }
+
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(uid)
+                          .update(data)
+                          .then((value) {
+                        Navigator.of(context).pop();
+                      });
+                    } catch (e) {
+                      print(e);
+                    } finally {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                  },
+            child: Text(
+              '保存',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+        title: Text(
+          widget.title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Container(
-        alignment: Alignment.center,
+        //alignment: Alignment.centerLeft,
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
@@ -84,89 +138,110 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   Map<String, dynamic> data =
                       snapshot.data!.data() as Map<String, dynamic>;
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('アイコン画像'),
-                      const SizedBox(
-                        height: 10,
+                      //Text('アイコン画像'),
+                      // const SizedBox(
+                      //   height: 10,
+                      // ),
+                      Stack(
+                        children: [
+                          SizedBox(
+                            height: 70,
+                            width: 70,
+                            child: InkWell(
+                              onTap: () async {
+                                await _selectImage();
+                                setState(() {});
+                              },
+                              child: CircleAvatar(
+                                backgroundImage: imageFile != null
+                                    ? Image.file(imageFile!).image
+                                    : NetworkImage(data['imageUrl']),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.asset(
+                              'images/camera.png',
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(
-                        height: 70,
-                        width: 70,
-                        child: InkWell(
-                          onTap: () async {
-                            await _selectImage();
-                            setState(() {});
-                          },
-                          child: CircleAvatar(
-                            backgroundImage: imageFile != null
-                                ? Image.file(imageFile!).image
-                                : NetworkImage(data['imageUrl']),
-                          ),
+                        height: 32,
+                      ),
+                      Text(
+                        '名前',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Text('姓'),
                       TextField(
                         controller: _firstNameController,
                       ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Text('名'),
-                      TextField(
-                        controller: _lastNameController,
-                      ),
+                      // SizedBox(
+                      //   height: 30,
+                      // ),
+                      // Text('名'),
+                      // TextField(
+                      //   controller: _lastNameController,
+                      // ),
                     ],
                   );
                 }
                 return Text('loading');
               },
             ),
-            SizedBox(
-              height: 30,
-            ),
-            ElevatedButton(
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      Map<String, dynamic> data = {
-                        'firstName': _firstNameController.text,
-                        'lastName': _lastNameController.text,
-                      };
-                      try {
-                        //アイコン画像を変更していたらcloud Storageへアップロードする
-                        if (isSelected) {
-                          final reference = FirebaseStorage.instance
-                              .ref('users/${uid!}/imageUrl');
-                          await reference.putFile(imageFile!);
-                          final uri = await reference.getDownloadURL();
-                          data['imageUrl'] = uri;
-                        }
+            // SizedBox(
+            //   height: 32,
+            // ),
+            // ElevatedButton(
+            //   onPressed: isLoading
+            //       ? null
+            //       : () async {
+            //           setState(() {
+            //             isLoading = true;
+            //           });
+            //           Map<String, dynamic> data = {
+            //             'firstName': _firstNameController.text,
+            //             'lastName': _lastNameController.text,
+            //           };
+            //           try {
+            //             //アイコン画像を変更していたらcloud Storageへアップロードする
+            //             if (isSelected) {
+            //               final reference = FirebaseStorage.instance
+            //                   .ref('users/${uid!}/imageUrl');
+            //               await reference.putFile(imageFile!);
+            //               final uri = await reference.getDownloadURL();
+            //               data['imageUrl'] = uri;
+            //             }
 
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(uid)
-                            .update(data)
-                            .then((value) {
-                          Navigator.of(context).pop();
-                        });
-                      } catch (e) {
-                        print(e);
-                      } finally {
-                        setState(() {
-                          isLoading = false;
-                        });
-                      }
-                    },
-              child: const Text(
-                '更新',
-              ),
-            ),
+            //             await FirebaseFirestore.instance
+            //                 .collection('users')
+            //                 .doc(uid)
+            //                 .update(data)
+            //                 .then((value) {
+            //               Navigator.of(context).pop();
+            //             });
+            //           } catch (e) {
+            //             print(e);
+            //           } finally {
+            //             setState(() {
+            //               isLoading = false;
+            //             });
+            //           }
+            //         },
+            //   child: const Text(
+            //     '更新',
+            //   ),
+            // ),
           ],
         ),
       ),
