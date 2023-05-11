@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 import 'edit_profile.dart';
 
 class MyPage extends StatefulWidget {
@@ -153,8 +155,49 @@ class _BodyState extends State<_Body> {
                                           color: Color.fromARGB(
                                               255, 101, 101, 101),
                                         ),
-                                        onPressed: () {
-                                          print('qr_code_button_taped');
+                                        onPressed: () async {
+                                          final uid = await FirebaseAuth
+                                              .instance.currentUser?.uid;
+                                          final dynamicLinkParams =
+                                              DynamicLinkParameters(
+                                            link: Uri.parse(
+                                              'https://3357dynamiclinks.page.link/testaaaaa?uid=${uid}',
+                                            ),
+                                            uriPrefix:
+                                                'https://3357dynamiclinks.page.link/',
+                                            androidParameters:
+                                                const AndroidParameters(
+                                              packageName: 'com.example',
+                                              //minimumVersion: 30,
+                                            ),
+                                            iosParameters: const IOSParameters(
+                                              bundleId: 'com.example.app.ios',
+                                              appStoreId: '123456789',
+                                              minimumVersion: '1.0.1',
+                                            ),
+                                            googleAnalyticsParameters:
+                                                const GoogleAnalyticsParameters(
+                                              source: 'twitter',
+                                              medium: 'social',
+                                              campaign: 'example-promo',
+                                            ),
+                                            socialMetaTagParameters:
+                                                SocialMetaTagParameters(
+                                              title:
+                                                  'Example of a Dynamic Link',
+                                              imageUrl: Uri.parse(
+                                                'https://example.com/image.png',
+                                              ),
+                                            ),
+                                          );
+                                          final dynamicLink =
+                                              await FirebaseDynamicLinks
+                                                  .instance
+                                                  .buildShortLink(
+                                            dynamicLinkParams,
+                                          );
+                                          Share.share(
+                                              dynamicLink.shortUrl.toString());
                                         },
                                       ),
                                     ),
