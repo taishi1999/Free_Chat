@@ -48,6 +48,7 @@ class _RoomsPageState extends State<RoomsPage> {
     return Scaffold(
       appBar: _AppBar(
         title: 'メッセージ',
+        userData: userData,
       ),
       body: _user != null
           ? FutureBuilder(
@@ -72,6 +73,9 @@ class _RoomsPageState extends State<RoomsPage> {
               },
             )
           : _navigatLogin(context),
+
+      //),
+      //body: _user != null ? _displayRoomList() : _navigatLogin(context),
       floatingActionButton: _FloatingActionButton(
         user: _user,
       ),
@@ -304,9 +308,11 @@ class _AppBar extends StatefulWidget implements PreferredSizeWidget {
   _AppBar({
     Key? key,
     required this.title,
+    required this.userData,
   }) : super(key: key);
 
   final String title;
+  final Future<DocumentSnapshot<Map<String, dynamic>>>? userData;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
