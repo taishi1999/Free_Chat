@@ -129,7 +129,11 @@ class _BodyState extends State<_Body> {
                               height: 70,
                               width: 70,
                               child: CircleAvatar(
-                                backgroundImage: NetworkImage(data['imageUrl']),
+                                backgroundImage: data['imageUrl'] != null
+                                    ? NetworkImage(data['imageUrl'])
+                                    : NetworkImage(
+                                        'https://newsatcl-pctr.c.yimg.jp/t/amd-img/20230108-03148946-nnn-000-1-view.jpg?pri=l&w=439&h=640&exp=10800'),
+                                //backgroundImage: NetworkImage(data['imageUrl']),
                               ),
                             ),
                           ),
@@ -246,7 +250,7 @@ class _BodyState extends State<_Body> {
                         height: 10,
                       ),
                       Text(
-                        data['firstName'] + ' ' + data['lastName'],
+                        data['firstName'],
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
