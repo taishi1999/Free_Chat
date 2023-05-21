@@ -22,7 +22,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  //final TextEditingController _lastNameController = TextEditingController();
   final picker = ImagePicker();
   File? imageFile;
   bool isSelected = false;
@@ -38,7 +38,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     userData?.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         _firstNameController.text = documentSnapshot.get('firstName');
-        _lastNameController.text = documentSnapshot.get('lastName');
+        //_lastNameController.text = documentSnapshot.get('lastName');
       } else {
         print('Document does not exist on the database');
       }

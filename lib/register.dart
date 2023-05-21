@@ -135,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
           firstName: _firstName,
           id: credential.user!.uid,
           imageUrl: 'https://i.pravatar.cc/300?u=$_email',
-          lastName: _lastName,
+          lastName: '',
         ),
       );
 
