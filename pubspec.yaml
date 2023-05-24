@@ -53,6 +53,7 @@ dependencies:
   firebase_dynamic_links: ^5.0.11
   share: ^2.0.4
   shared_preferences: ^2.0.17
+  google_sign_in: ^6.1.1
 
 dev_dependencies:
   dart_code_metrics: ^4.21.3
