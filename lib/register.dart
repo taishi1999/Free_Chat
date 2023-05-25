@@ -25,15 +25,17 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
     final faker = Faker();
-    _firstName = faker.person.firstName();
-    _lastName = faker.person.lastName();
-    _email =
-        '${_firstName!.toLowerCase()}.${_lastName!.toLowerCase()}@${faker.internet.domainName()}';
+    _firstName = 'unknown';
+    //_firstName = faker.person.firstName();
+    //_lastName = faker.person.lastName();
+    _lastName = '';
+    _email = '${_firstName!.toLowerCase()}@${faker.internet.domainName()}';
+    //_email = '${_firstName!.toLowerCase()}.${_lastName!.toLowerCase()}@${faker.internet.domainName()}';
     _focusNode = FocusNode();
     _passwordController = TextEditingController(text: 'Qawsed1-');
     _usernameController = TextEditingController(
-      text: _email,
-    );
+        //text: _email,
+        );
   }
 
   @override
@@ -135,7 +137,7 @@ class _RegisterPageState extends State<RegisterPage> {
           firstName: _firstName,
           id: credential.user!.uid,
           imageUrl: 'https://i.pravatar.cc/300?u=$_email',
-          lastName: _lastName,
+          //lastName: _lastName,
         ),
       );
 

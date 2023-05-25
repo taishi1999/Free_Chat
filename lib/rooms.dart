@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:example/google_signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,6 +127,7 @@ class _RoomsPageState extends State<RoomsPage> {
               },
               child: const Text('Login'),
             ),
+            GoogleSignin(),
           ],
         ),
       );
@@ -389,7 +391,10 @@ class _AppBarState extends State<_AppBar> {
               final data = snapshot.data!.data() as Map<String, dynamic>;
               return PopupMenuButton(
                 icon: CircleAvatar(
-                  backgroundImage: NetworkImage(data['imageUrl']),
+                  backgroundImage: data['imageUrl'] != null
+                      ? NetworkImage(data['imageUrl'])
+                      : NetworkImage(
+                          'https://newsatcl-pctr.c.yimg.jp/t/amd-img/20230108-03148946-nnn-000-1-view.jpg?pri=l&w=439&h=640&exp=10800'),
                 ),
                 itemBuilder: (context) => [
                   const PopupMenuItem<int>(
