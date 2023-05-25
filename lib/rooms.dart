@@ -7,6 +7,7 @@ import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chat.dart';
+import 'groups.dart';
 import 'login.dart';
 import 'my_page.dart';
 import 'profile.dart';
@@ -458,9 +459,10 @@ class _FloatingActionButton extends StatelessWidget {
         onPressed: user == null
             ? null
             : () async {
-                var result = await showModalBottomSheet(
+                final result = await showModalBottomSheet(
                   context: context,
-                  isScrollControlled: true, //trueにしないと、Containerのheightが反映されない
+                  isScrollControlled:
+                      true, // Trueにしないと、Containerのheightが反映されない.
                   shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(15)),
@@ -488,7 +490,7 @@ class _FloatingActionButton extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      trailing: const Icon(Icons.arrow_forward_ios),
                       title: const Text(
                         '新しいフレンド',
                         style: TextStyle(
@@ -514,14 +516,22 @@ class _FloatingActionButton extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios),
+                      trailing: const Icon(Icons.arrow_forward_ios),
                       title: const Text(
                         'グループを作成',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      onTap: () => Navigator.of(context).pop(2),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          fullscreenDialog: true,
+                          builder: (context) => GroupsPage(
+                            user: user!,
+                            listSelectedUsers: [],
+                          ),
+                        ),
+                      ),
                     ),
                   ]),
                 );

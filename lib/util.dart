@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:intl/intl.dart';
 
 const colors = [
@@ -58,3 +59,10 @@ String getDateTimeRepresentation(int? timestamp) => timestamp == null
     : getVerboseDateTimeRepresentation(
         DateTime.fromMillisecondsSinceEpoch(timestamp),
       );
+
+FirebaseChatCoreConfig getFirebaseChatCoreConfig() =>
+    const FirebaseChatCoreConfig(
+      null,
+      'rooms',
+      'users',
+    );
