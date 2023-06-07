@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 import 'edit_profile.dart';
+
+import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:convert';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -117,6 +122,26 @@ class _BodyState extends State<_Body> {
 
                 if (snapshot.connectionState == ConnectionState.done) {
                   final data = snapshot.data!.data() as Map<String, dynamic>;
+                  final transparentImage = MemoryImage(base64Decode(
+                      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="));
+
+                  ImageProvider imageProvider;
+                  Widget? imageWidget;
+
+                  if (data['imageUrl'] is String && data['imageUrl'] != null) {
+                    //imageProvider = AssetImage('images/unknown_icon.png');
+                    imageProvider = NetworkImage(data['imageUrl'] as String);
+                  } else {
+                    imageWidget = ClipOval(
+                      child: SvgPicture.asset(
+                        'images/unknown_icon.svg',
+                        width: 70,
+                        //color: Colors.black,
+                      ),
+                    );
+                    imageProvider = transparentImage;
+                  }
+
                   return Column(
                     children: [
                       Row(
@@ -128,7 +153,9 @@ class _BodyState extends State<_Body> {
                             height: 70,
                             width: 70,
                             child: CircleAvatar(
-                              backgroundImage: NetworkImage(data['imageUrl']),
+                              child: imageWidget,
+                              backgroundImage: imageProvider,
+                              //backgroundImage: NetworkImage(data['imageUrl']),
                             ),
                           ),
                           Expanded(
@@ -153,8 +180,49 @@ class _BodyState extends State<_Body> {
                                           color: Color.fromARGB(
                                               255, 101, 101, 101),
                                         ),
-                                        onPressed: () {
-                                          print('qr_code_button_taped');
+                                        onPressed: () async {
+                                          final uid = await FirebaseAuth
+                                              .instance.currentUser?.uid;
+                                          final dynamicLinkParams =
+                                              DynamicLinkParameters(
+                                            link: Uri.parse(
+                                              'https://3358dynamiclinks.page.link/testaaaaa?uid=${uid}',
+                                            ),
+                                            uriPrefix:
+                                                'https://3358dynamiclinks.page.link/',
+                                            androidParameters:
+                                                const AndroidParameters(
+                                              packageName: 'com.example',
+                                              //minimumVersion: 30,
+                                            ),
+                                            iosParameters: const IOSParameters(
+                                              bundleId: 'com.example.app.ios',
+                                              appStoreId: '123456789',
+                                              minimumVersion: '1.0.1',
+                                            ),
+                                            googleAnalyticsParameters:
+                                                const GoogleAnalyticsParameters(
+                                              source: 'twitter',
+                                              medium: 'social',
+                                              campaign: 'example-promo',
+                                            ),
+                                            socialMetaTagParameters:
+                                                SocialMetaTagParameters(
+                                              title:
+                                                  'Example of a Dynamic Link',
+                                              imageUrl: Uri.parse(
+                                                'https://example.com/image.png',
+                                              ),
+                                            ),
+                                          );
+                                          final dynamicLink =
+                                              await FirebaseDynamicLinks
+                                                  .instance
+                                                  .buildShortLink(
+                                            dynamicLinkParams,
+                                          );
+                                          Share.share(
+                                              dynamicLink.shortUrl.toString());
                                         },
                                       ),
                                     ),
@@ -204,7 +272,6 @@ class _BodyState extends State<_Body> {
                       ),
                       Text(
                         data['firstName'],
-                        //data['firstName'] + ' ' + data['lastName'],
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,

@@ -1,17 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:example/google_signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'chat.dart';
 import 'login.dart';
 import 'my_page.dart';
+import 'profile.dart';
 import 'users.dart';
 import 'util.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:convert';
 
 class RoomsPage extends StatefulWidget {
   const RoomsPage({super.key});
@@ -50,11 +54,42 @@ class _RoomsPageState extends State<RoomsPage> {
         title: 'メッセージ',
         userData: userData,
       ),
-      body: _user != null ? _displayRoomList() : _navigatLogin(context),
+      body: _user != null
+          ? FutureBuilder(
+              future: getDinamicLinkUidParam(),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<String?> snapshot,
+              ) {
+                if (snapshot.hasData) {
+                  final uidParam = snapshot.data;
+                  if (uidParam != null) {
+                    return ProfilePage(
+                      uid: uidParam,
+                      hasAppBar: false,
+                    );
+                  } else {
+                    return _displayRoomList();
+                  }
+                } else {
+                  return _displayRoomList();
+                }
+              },
+            )
+          : _navigatLogin(context),
+
+      //),
+      //body: _user != null ? _displayRoomList() : _navigatLogin(context),
       floatingActionButton: _FloatingActionButton(
         user: _user,
       ),
     );
+  }
+
+  Future<String?> getDinamicLinkUidParam() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? uidParam = await prefs.getString('uid');
+    return uidParam;
   }
 
   void initializeFlutterFire() async {
@@ -74,10 +109,6 @@ class _RoomsPageState extends State<RoomsPage> {
     }
   }
 
-  void logout() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
   // 未ログイン時のログインページへの遷移.
   Widget _navigatLogin(BuildContext context) => Container(
         alignment: Alignment.center,
@@ -89,8 +120,8 @@ class _RoomsPageState extends State<RoomsPage> {
           children: [
             const Text('Not authenticated'),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () async {
+                await Navigator.of(context).push(
                   MaterialPageRoute(
                     fullscreenDialog: true,
                     builder: (context) => const LoginPage(),
@@ -99,6 +130,7 @@ class _RoomsPageState extends State<RoomsPage> {
               },
               child: const Text('Login'),
             ),
+            GoogleSignin(),
           ],
         ),
       );
@@ -122,18 +154,39 @@ class _RoomsPageState extends State<RoomsPage> {
     final hasImage = room.imageUrl != null;
     final name = room.name ?? '';
 
+    String id = '';
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    for (var user in room.users) {
+      if (uid != user.id) {
+        id = user.id;
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.only(right: 16),
-      child: CircleAvatar(
-        backgroundColor: hasImage ? Colors.transparent : color,
-        backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
-        radius: 20,
-        child: !hasImage
-            ? Text(
-                name.isEmpty ? '' : name[0].toUpperCase(),
-                style: const TextStyle(color: Colors.white),
-              )
-            : null,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                uid: id,
+                hasBackButton: false,
+              ),
+            ),
+          );
+        },
+        child: CircleAvatar(
+          backgroundColor: hasImage ? Colors.transparent : color,
+          backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
+          radius: 20,
+          child: !hasImage
+              ? Text(
+                  name.isEmpty ? '' : name[0].toUpperCase(),
+                  style: const TextStyle(color: Colors.white),
+                )
+              : null,
+        ),
       ),
     );
   }
@@ -257,7 +310,7 @@ class _SearchTextField extends StatelessWidget {
 }
 
 class _AppBar extends StatefulWidget implements PreferredSizeWidget {
-  const _AppBar({
+  _AppBar({
     Key? key,
     required this.title,
     required this.userData,
@@ -275,11 +328,31 @@ class _AppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _AppBarState extends State<_AppBar> {
   bool? searchBoolean;
+  Future<DocumentSnapshot<Map<String, dynamic>>>? userData;
 
   @override
   void initState() {
+    try {
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        setState(() {
+          final uid = FirebaseAuth.instance.currentUser?.uid;
+          userData =
+              FirebaseFirestore.instance.collection('users').doc(uid).get();
+        });
+      });
+    } catch (e) {
+      setState(() {
+        print(e);
+      });
+    }
     searchBoolean = false;
     super.initState();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    userData = FirebaseFirestore.instance.collection('users').doc(uid).get();
+  }
+
+  void logout() {
+    FirebaseAuth.instance.signOut();
   }
 
   @override
@@ -306,55 +379,89 @@ class _AppBarState extends State<_AppBar> {
                   },
                 ),
               ],
-        leading: InkWell(
-          onTap: () {
-            Navigator.of(context).push(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const MyPage(),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  //final Offset begin = Offset(1.0, 0.0); // 右から左
-                  final Offset begin = Offset(-1.0, 0.0); // 左から右
-                  final Offset end = Offset.zero;
-                  final Animatable<Offset> tween = Tween(begin: begin, end: end)
-                      .chain(CurveTween(curve: Curves.easeInOut));
-                  final Animation<Offset> offsetAnimation =
-                      animation.drive(tween);
-                  return SlideTransition(
-                    position: offsetAnimation,
-                    child: child,
-                  );
-                },
-              ),
-            );
-          },
-          child: FutureBuilder<DocumentSnapshot>(
-            future: widget.userData,
-            builder: (
-              BuildContext context,
-              AsyncSnapshot<DocumentSnapshot> snapshot,
-            ) {
-              if (snapshot.hasError) {
-                return const Text('Something went wrong');
-              }
+        leading: FutureBuilder<DocumentSnapshot>(
+          future: userData,
+          builder: (
+            BuildContext context,
+            AsyncSnapshot<DocumentSnapshot> snapshot,
+          ) {
+            if (snapshot.hasError) {
+              return Container();
+            }
+            if (snapshot.hasData && !snapshot.data!.exists) {
+              return Container();
+            }
+            if (snapshot.connectionState == ConnectionState.done) {
+              final data = snapshot.data!.data() as Map<String, dynamic>;
+              final transparentImage = MemoryImage(base64Decode(
+                  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="));
 
-              if (snapshot.hasData && !snapshot.data!.exists) {
-                return const Text('Document does not exist');
-              }
+              ImageProvider imageProvider;
+              Widget? imageWidget;
 
-              if (snapshot.connectionState == ConnectionState.done) {
-                final data = snapshot.data!.data() as Map<String, dynamic>;
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(data['imageUrl']),
+              if (data['imageUrl'] is String && data['imageUrl'] != null) {
+                //imageProvider = AssetImage('images/unknown_icon.png');
+                imageProvider = NetworkImage(data['imageUrl'] as String);
+              } else {
+                imageWidget = ClipOval(
+                  child: SvgPicture.asset(
+                    'images/unknown_icon.svg',
+                    width: 70,
+                    //color: Colors.black,
                   ),
                 );
+                imageProvider = transparentImage;
               }
-              return const Text('loading');
-            },
-          ),
+
+              return PopupMenuButton(
+                icon: CircleAvatar(
+                  child: imageWidget,
+                  backgroundImage: imageProvider,
+                ),
+                itemBuilder: (context) => [
+                  const PopupMenuItem<int>(
+                    value: 0,
+                    child: Text('マイページ'),
+                  ),
+                  const PopupMenuItem<int>(
+                    value: 1,
+                    child: Text('ログアウト'),
+                  ),
+                ],
+                onSelected: (value) async {
+                  if (value == 0) {
+                    await Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const MyPage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          //final Offset begin = Offset(1.0, 0.0); // 右から左
+                          final Offset begin = Offset(-1.0, 0.0); // 左から右
+                          final Offset end = Offset.zero;
+                          final Animatable<Offset> tween =
+                              Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: Curves.easeInOut));
+                          final Animation<Offset> offsetAnimation =
+                              animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  } else if (value == 1) {
+                    logout();
+                    setState(() {
+                      userData = null;
+                    });
+                  }
+                },
+              );
+            }
+            return Container();
+          },
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
         centerTitle: true,
