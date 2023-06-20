@@ -61,17 +61,21 @@ class _RoomsPageState extends State<RoomsPage> {
                 BuildContext context,
                 AsyncSnapshot<String?> snapshot,
               ) {
+                print('FutureBuilder is called');
                 if (snapshot.hasData) {
                   final uidParam = snapshot.data;
                   if (uidParam != null) {
+                    print('uidParam: $uidParam');
                     return ProfilePage(
                       uid: uidParam,
                       hasAppBar: false,
                     );
                   } else {
+                    print('uidParam: null');
                     return _displayRoomList();
                   }
                 } else {
+                  print('snpashot: null');
                   return _displayRoomList();
                 }
               },
@@ -87,9 +91,19 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   Future<String?> getDinamicLinkUidParam() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? uidParam = await prefs.getString('uid');
-    return uidParam;
+    print("getDinamicLinkUidParam is called");
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      String? uidParam =
+          prefs.getString('uid'); // getStringは非同期メソッドではないため、awaitは不要です
+
+      return uidParam;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
   }
 
   void initializeFlutterFire() async {
@@ -358,27 +372,28 @@ class _AppBarState extends State<_AppBar> {
   @override
   Widget build(BuildContext context) => AppBar(
         backgroundColor: Color(0xff1d1c21),
-        actions: !searchBoolean!
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      searchBoolean = true;
-                    });
-                  },
-                ),
-              ]
-            : [
-                IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    setState(() {
-                      searchBoolean = false;
-                    });
-                  },
-                ),
-              ],
+        // - 検索ボタン -
+        // actions: !searchBoolean!
+        //     ? [
+        //         IconButton(
+        //           icon: const Icon(Icons.search),
+        //           onPressed: () {
+        //             setState(() {
+        //               searchBoolean = true;
+        //             });
+        //           },
+        //         ),
+        //       ]
+        //     : [
+        //         IconButton(
+        //           icon: const Icon(Icons.clear),
+        //           onPressed: () {
+        //             setState(() {
+        //               searchBoolean = false;
+        //             });
+        //           },
+        //         ),
+        //       ],
         leading: FutureBuilder<DocumentSnapshot>(
           future: userData,
           builder: (
@@ -412,53 +427,80 @@ class _AppBarState extends State<_AppBar> {
                 );
                 imageProvider = transparentImage;
               }
-
-              return PopupMenuButton(
+              return IconButton(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const MyPage(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        final Offset begin = Offset(-1.0, 0.0); // 左から右
+                        final Offset end = Offset.zero;
+                        final Animatable<Offset> tween =
+                            Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: Curves.easeInOut));
+                        final Animation<Offset> offsetAnimation =
+                            animation.drive(tween);
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
                 icon: CircleAvatar(
                   child: imageWidget,
                   backgroundImage: imageProvider,
                 ),
-                itemBuilder: (context) => [
-                  const PopupMenuItem<int>(
-                    value: 0,
-                    child: Text('マイページ'),
-                  ),
-                  const PopupMenuItem<int>(
-                    value: 1,
-                    child: Text('ログアウト'),
-                  ),
-                ],
-                onSelected: (value) async {
-                  if (value == 0) {
-                    await Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const MyPage(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          //final Offset begin = Offset(1.0, 0.0); // 右から左
-                          final Offset begin = Offset(-1.0, 0.0); // 左から右
-                          final Offset end = Offset.zero;
-                          final Animatable<Offset> tween =
-                              Tween(begin: begin, end: end)
-                                  .chain(CurveTween(curve: Curves.easeInOut));
-                          final Animation<Offset> offsetAnimation =
-                              animation.drive(tween);
-                          return SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          );
-                        },
-                      ),
-                    );
-                  } else if (value == 1) {
-                    logout();
-                    setState(() {
-                      userData = null;
-                    });
-                  }
-                },
               );
+              // return PopupMenuButton(
+              //   icon: CircleAvatar(
+              //     child: imageWidget,
+              //     backgroundImage: imageProvider,
+              //   ),
+              //   itemBuilder: (context) => [
+              //     const PopupMenuItem<int>(
+              //       value: 0,
+              //       child: Text('マイページ'),
+              //     ),
+              //     const PopupMenuItem<int>(
+              //       value: 1,
+              //       child: Text('ログアウト'),
+              //     ),
+              //   ],
+              //   onSelected: (value) async {
+              //     if (value == 0) {
+              //       await Navigator.of(context).push(
+              //         PageRouteBuilder(
+              //           pageBuilder: (context, animation, secondaryAnimation) =>
+              //               const MyPage(),
+              //           transitionsBuilder:
+              //               (context, animation, secondaryAnimation, child) {
+              //             //final Offset begin = Offset(1.0, 0.0); // 右から左
+              //             final Offset begin = Offset(-1.0, 0.0); // 左から右
+              //             final Offset end = Offset.zero;
+              //             final Animatable<Offset> tween =
+              //                 Tween(begin: begin, end: end)
+              //                     .chain(CurveTween(curve: Curves.easeInOut));
+              //             final Animation<Offset> offsetAnimation =
+              //                 animation.drive(tween);
+              //             return SlideTransition(
+              //               position: offsetAnimation,
+              //               child: child,
+              //             );
+              //           },
+              //         ),
+              //       );
+              //     } else if (value == 1) {
+              //       logout();
+              //       setState(() {
+              //         userData = null;
+              //       });
+              //     }
+              //   },
+              // );
             }
             return Container();
           },

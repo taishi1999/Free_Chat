@@ -287,188 +287,188 @@ class _BodyState extends State<_Body> {
             const SizedBox(
               height: 50,
             ),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    'アカウント',
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.grey, //色
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('フレンド'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      child:
-                          const Icon(Icons.account_circle, color: Colors.white),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('電話番号'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.local_phone_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('ダークモード'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.dark_mode_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    '設定',
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.grey, //色
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('通知'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.purple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('プライバシー'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.purple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   child: const Padding(
+            //     padding: EdgeInsets.all(10.0),
+            //     child: Opacity(
+            //       opacity: 0.7,
+            //       child: Text(
+            //         'アカウント',
+            //         style: TextStyle(
+            //           fontSize: 15,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     boxShadow: const [
+            //       BoxShadow(
+            //         color: Colors.grey, //色
+            //       ),
+            //     ],
+            //     borderRadius: BorderRadius.circular(10),
+            //     color: Colors.white,
+            //   ),
+            //   child: Column(
+            //     children: [
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('フレンド'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.blue,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child:
+            //               const Icon(Icons.account_circle, color: Colors.white),
+            //         ),
+            //         trailing: const Icon(Icons.arrow_forward_ios),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('電話番号'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.green,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.local_phone_rounded,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('ダークモード'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.black,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.dark_mode_rounded,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 20,
+            // ),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   child: const Padding(
+            //     padding: EdgeInsets.all(10.0),
+            //     child: Opacity(
+            //       opacity: 0.7,
+            //       child: Text(
+            //         '設定',
+            //         style: TextStyle(
+            //           fontSize: 15,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     boxShadow: const [
+            //       BoxShadow(
+            //         color: Colors.grey, //色
+            //       ),
+            //     ],
+            //     borderRadius: BorderRadius.circular(10),
+            //     color: Colors.white,
+            //   ),
+            //   child: Column(
+            //     children: [
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('通知'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.purple,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.notifications,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('プライバシー'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.purple,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.notifications,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       );
