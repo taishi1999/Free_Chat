@@ -189,7 +189,7 @@ class _BodyState extends State<_Body> {
                                               'https://3358dynamiclinks.page.link/testaaaaa?uid=${uid}',
                                             ),
                                             uriPrefix:
-                                                'https://3358dynamiclinks.page.link',
+                                                'https://3358dynamiclinks.page.link/',
                                             androidParameters:
                                                 const AndroidParameters(
                                               packageName: 'com.example',
