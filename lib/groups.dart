@@ -36,25 +36,33 @@ class GroupsPage extends StatelessWidget {
           systemOverlayStyle: SystemUiOverlayStyle.light,
           title: const Text('Add Group'),
         ),
-        body: StreamBuilder<List<types.User>>(
-          stream: FirebaseChatCore.instance.users(),
-          initialData: const [],
+        // 友達一覧を表示.
+        body: StreamBuilder<List<types.Room>>(
+          stream: getFriendListRoomStream(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            if (!snapshot.hasData) {
               return Container(
                 alignment: Alignment.center,
                 margin: const EdgeInsets.only(
                   bottom: 200,
                 ),
-                child: const Text('No users'),
+                child: const Text('No friends'),
               );
             }
 
+            // Roomタイプがdirectになっている部屋から自分を除外.
+            final uid = FirebaseAuth.instance.currentUser!.uid;
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                final userRow = snapshot.data![index];
-                return UserRows(userRow, listSelectedUsers);
+                final roomRow = snapshot.data![index];
+                final userRow = (uid == roomRow.users[0].id)
+                    ? roomRow.users[1]
+                    : roomRow.users[0];
+                return UserRows(
+                  userRow,
+                  listSelectedUsers,
+                );
               },
             );
           },
@@ -104,6 +112,34 @@ class GroupsPage extends StatelessWidget {
       child: const Icon(Icons.group_add),
     );
   }
+}
+
+// Roomタイプがdirectになっているroomを取得.
+Stream<List<types.Room>> getFriendListRoomStream({
+  bool orderByUpdatedAt = false,
+}) {
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser == null) return const Stream.empty();
+
+  final collection = orderByUpdatedAt
+      ? FirebaseFirestore.instance
+          .collection('rooms')
+          .where('type', isEqualTo: types.RoomType.direct.toShortString())
+          .where('userIds', arrayContains: currentUser.uid)
+          .orderBy('updatedAt', descending: true)
+      : FirebaseFirestore.instance
+          .collection('rooms')
+          .where('type', isEqualTo: types.RoomType.direct.toShortString())
+          .where('userIds', arrayContains: currentUser.uid);
+
+  return collection.snapshots().asyncMap(
+        (query) => processRoomsQuery(
+          currentUser,
+          FirebaseFirestore.instance,
+          query,
+          getFirebaseChatCoreConfig().usersCollectionName,
+        ),
+      );
 }
 
 class UserRows extends StatefulWidget {
