@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:example/google_signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,9 @@ import 'my_page.dart';
 import 'profile.dart';
 import 'users.dart';
 import 'util.dart';
+
+import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:convert';
 
 class RoomsPage extends StatefulWidget {
   const RoomsPage({super.key});
@@ -58,17 +62,21 @@ class _RoomsPageState extends State<RoomsPage> {
                 BuildContext context,
                 AsyncSnapshot<String?> snapshot,
               ) {
+                print('FutureBuilder is called');
                 if (snapshot.hasData) {
                   final uidParam = snapshot.data;
                   if (uidParam != null) {
+                    print('uidParam: $uidParam');
                     return ProfilePage(
                       uid: uidParam,
                       hasAppBar: false,
                     );
                   } else {
+                    print('uidParam: null');
                     return _displayRoomList();
                   }
                 } else {
+                  print('snpashot: null');
                   return _displayRoomList();
                 }
               },
@@ -84,9 +92,19 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   Future<String?> getDinamicLinkUidParam() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? uidParam = await prefs.getString('uid');
-    return uidParam;
+    print("getDinamicLinkUidParam is called");
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      String? uidParam =
+          prefs.getString('uid'); // getStringは非同期メソッドではないため、awaitは不要です
+
+      return uidParam;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
   }
 
   void initializeFlutterFire() async {
@@ -127,6 +145,7 @@ class _RoomsPageState extends State<RoomsPage> {
               },
               child: const Text('Login'),
             ),
+            GoogleSignin(),
           ],
         ),
       );
@@ -353,27 +372,29 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
-        actions: !searchBoolean!
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      searchBoolean = true;
-                    });
-                  },
-                ),
-              ]
-            : [
-                IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    setState(() {
-                      searchBoolean = false;
-                    });
-                  },
-                ),
-              ],
+        backgroundColor: Color(0xff1d1c21),
+        // - 検索ボタン -
+        // actions: !searchBoolean!
+        //     ? [
+        //         IconButton(
+        //           icon: const Icon(Icons.search),
+        //           onPressed: () {
+        //             setState(() {
+        //               searchBoolean = true;
+        //             });
+        //           },
+        //         ),
+        //       ]
+        //     : [
+        //         IconButton(
+        //           icon: const Icon(Icons.clear),
+        //           onPressed: () {
+        //             setState(() {
+        //               searchBoolean = false;
+        //             });
+        //           },
+        //         ),
+        //       ],
         leading: FutureBuilder<DocumentSnapshot>(
           future: userData,
           builder: (
@@ -388,61 +409,118 @@ class _AppBarState extends State<_AppBar> {
             }
             if (snapshot.connectionState == ConnectionState.done) {
               final data = snapshot.data!.data() as Map<String, dynamic>;
-              return PopupMenuButton(
-                icon: CircleAvatar(
-                  backgroundImage: NetworkImage(data['imageUrl']),
-                ),
-                itemBuilder: (context) => [
-                  const PopupMenuItem<int>(
-                    value: 0,
-                    child: Text('マイページ'),
+              final transparentImage = MemoryImage(base64Decode(
+                  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="));
+
+              ImageProvider imageProvider;
+              Widget? imageWidget;
+
+              if (data['imageUrl'] is String && data['imageUrl'] != null) {
+                //imageProvider = AssetImage('images/unknown_icon.png');
+                imageProvider = NetworkImage(data['imageUrl'] as String);
+              } else {
+                imageWidget = ClipOval(
+                  child: SvgPicture.asset(
+                    'images/unknown_icon.svg',
+                    width: 70,
+                    //color: Colors.black,
                   ),
-                  const PopupMenuItem<int>(
-                    value: 1,
-                    child: Text('ログアウト'),
-                  ),
-                ],
-                onSelected: (value) async {
-                  if (value == 0) {
-                    await Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const MyPage(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          //final Offset begin = Offset(1.0, 0.0); // 右から左
-                          final Offset begin = Offset(-1.0, 0.0); // 左から右
-                          final Offset end = Offset.zero;
-                          final Animatable<Offset> tween =
-                              Tween(begin: begin, end: end)
-                                  .chain(CurveTween(curve: Curves.easeInOut));
-                          final Animation<Offset> offsetAnimation =
-                              animation.drive(tween);
-                          return SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          );
-                        },
-                      ),
-                    );
-                  } else if (value == 1) {
-                    logout();
-                    setState(() {
-                      userData = null;
-                    });
-                  }
+                );
+                imageProvider = transparentImage;
+              }
+              return IconButton(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const MyPage(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        final Offset begin = Offset(-1.0, 0.0); // 左から右
+                        final Offset end = Offset.zero;
+                        final Animatable<Offset> tween =
+                            Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: Curves.easeInOut));
+                        final Animation<Offset> offsetAnimation =
+                            animation.drive(tween);
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
                 },
+                icon: CircleAvatar(
+                  child: imageWidget,
+                  backgroundImage: imageProvider,
+                ),
               );
+              // return PopupMenuButton(
+              //   icon: CircleAvatar(
+              //     child: imageWidget,
+              //     backgroundImage: imageProvider,
+              //   ),
+              //   itemBuilder: (context) => [
+              //     const PopupMenuItem<int>(
+              //       value: 0,
+              //       child: Text('マイページ'),
+              //     ),
+              //     const PopupMenuItem<int>(
+              //       value: 1,
+              //       child: Text('ログアウト'),
+              //     ),
+              //   ],
+              //   onSelected: (value) async {
+              //     if (value == 0) {
+              //       await Navigator.of(context).push(
+              //         PageRouteBuilder(
+              //           pageBuilder: (context, animation, secondaryAnimation) =>
+              //               const MyPage(),
+              //           transitionsBuilder:
+              //               (context, animation, secondaryAnimation, child) {
+              //             //final Offset begin = Offset(1.0, 0.0); // 右から左
+              //             final Offset begin = Offset(-1.0, 0.0); // 左から右
+              //             final Offset end = Offset.zero;
+              //             final Animatable<Offset> tween =
+              //                 Tween(begin: begin, end: end)
+              //                     .chain(CurveTween(curve: Curves.easeInOut));
+              //             final Animation<Offset> offsetAnimation =
+              //                 animation.drive(tween);
+              //             return SlideTransition(
+              //               position: offsetAnimation,
+              //               child: child,
+              //             );
+              //           },
+              //         ),
+              //       );
+              //     } else if (value == 1) {
+              //       logout();
+              //       setState(() {
+              //         userData = null;
+              //       });
+              //     }
+              //   },
+              // );
             }
             return Container();
           },
         ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
         centerTitle: true,
-        title: _SearchTextField(
-          title: widget.title,
-          searchBoolean: searchBoolean!,
+        title: Text(
+          widget.title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        // title: _SearchTextField(
+
+        //   title: widget.title,
+        //   searchBoolean: searchBoolean!,
+        // ),
       );
 }
 
@@ -456,6 +534,7 @@ class _FloatingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FloatingActionButton(
+        backgroundColor: Color(0xff1d1c21),
         onPressed: user == null
             ? null
             : () async {
@@ -482,13 +561,23 @@ class _FloatingActionButton extends StatelessWidget {
                       leading: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
-                          color: Colors.blue,
+                          //color: Colors.grey,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.add_reaction_outlined,
-                          color: Colors.white,
+                        // child: const Icon(
+                        //   Icons.add_reaction_outlined,
+                        //   color: Colors.black,
+                        // ),
+                        child: SvgPicture.asset(
+                          'images/user_add.svg',
+                          color: Colors.black,
                         ),
+                        // child: AssetImage('images/user_add.svg') != null
+                        //     ? Image(
+                        //         color: Colors.black,
+                        //         image: AssetImage('images/user_add.svg'),
+                        //       )
+                        //     : Container(),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       title: const Text(
@@ -508,12 +597,16 @@ class _FloatingActionButton extends StatelessWidget {
                       leading: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
-                          color: Colors.blue,
+                          //color: Colors.blue,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.groups,
-                          color: Colors.white,
+                        // child: const Icon(
+                        //   Icons.groups,
+                        //   color: Colors.black,
+                        // ),
+                        child: SvgPicture.asset(
+                          'images/users.svg',
+                          color: Colors.black,
                         ),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios),

@@ -23,8 +23,8 @@ Color getUserAvatarNameColor(types.User user) {
 }
 
 /// Todo:flutter_chat_ui_edit の util と共通化.
-String getUserName(types.User user) =>
-    '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim();
+String getUserName(types.User user) => '${user.firstName ?? ''}'.trim();
+//'${user.firstName ?? ''} ${user.lastName ?? ''}'.trim();
 
 /// Todo:flutter_chat_ui_edit の util と共通化.
 /// Returns formatted date used as a divider between different days in the

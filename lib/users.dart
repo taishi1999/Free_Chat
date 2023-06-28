@@ -24,7 +24,9 @@ class UsersPage extends StatelessWidget {
             },
           ),
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          title: const Text('Users'),
+          backgroundColor: Color(0xff1d1c21),
+
+          //title: const Text('Users'),
         ),
         body: StreamBuilder<List<types.User>>(
           stream: FirebaseChatCore.instance.users(),

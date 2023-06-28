@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 import 'edit_profile.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:convert';
+
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
 
@@ -66,9 +69,11 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        //backgroundColor: Colors.transparent,
+        backgroundColor: Color(0xff1d1c21),
         leading: Container(),
-        centerTitle: true,
-        title: const Text('マイページ'),
+        centerTitle: false,
+        //title: const Text('マイページ'),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios),
@@ -98,7 +103,7 @@ class _BodyState extends State<_Body> {
   @override
   Widget build(BuildContext context) => Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
             FutureBuilder<DocumentSnapshot>(
@@ -117,6 +122,26 @@ class _BodyState extends State<_Body> {
 
                 if (snapshot.connectionState == ConnectionState.done) {
                   final data = snapshot.data!.data() as Map<String, dynamic>;
+                  final transparentImage = MemoryImage(base64Decode(
+                      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="));
+
+                  ImageProvider imageProvider;
+                  Widget? imageWidget;
+
+                  if (data['imageUrl'] is String && data['imageUrl'] != null) {
+                    //imageProvider = AssetImage('images/unknown_icon.png');
+                    imageProvider = NetworkImage(data['imageUrl'] as String);
+                  } else {
+                    imageWidget = ClipOval(
+                      child: SvgPicture.asset(
+                        'images/unknown_icon.svg',
+                        width: 70,
+                        //color: Colors.black,
+                      ),
+                    );
+                    imageProvider = transparentImage;
+                  }
+
                   return Column(
                     children: [
                       Row(
@@ -124,13 +149,13 @@ class _BodyState extends State<_Body> {
                           Expanded(
                             child: Container(),
                           ),
-                          Expanded(
-                            child: SizedBox(
-                              height: 70,
-                              width: 70,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(data['imageUrl']),
-                              ),
+                          SizedBox(
+                            height: 70,
+                            width: 70,
+                            child: CircleAvatar(
+                              child: imageWidget,
+                              backgroundImage: imageProvider,
+                              //backgroundImage: NetworkImage(data['imageUrl']),
                             ),
                           ),
                           Expanded(
@@ -139,8 +164,8 @@ class _BodyState extends State<_Body> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   SizedBox(
-                                    height: 20,
-                                    width: 20,
+                                    height: 32,
+                                    width: 32,
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color:
@@ -151,7 +176,7 @@ class _BodyState extends State<_Body> {
                                         padding: EdgeInsets.all(0.0),
                                         icon: const Icon(
                                           Icons.qr_code,
-                                          size: 10,
+                                          size: 16,
                                           color: Color.fromARGB(
                                               255, 101, 101, 101),
                                         ),
@@ -161,10 +186,10 @@ class _BodyState extends State<_Body> {
                                           final dynamicLinkParams =
                                               DynamicLinkParameters(
                                             link: Uri.parse(
-                                              'https://3357dynamiclinks.page.link/testaaaaa?uid=${uid}',
+                                              'https://3358dynamiclinks.page.link/testaaaaa?uid=${uid}',
                                             ),
                                             uriPrefix:
-                                                'https://3357dynamiclinks.page.link/',
+                                                'https://3358dynamiclinks.page.link/',
                                             androidParameters:
                                                 const AndroidParameters(
                                               packageName: 'com.example',
@@ -203,11 +228,11 @@ class _BodyState extends State<_Body> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    width: 5,
+                                    width: 8,
                                   ),
                                   SizedBox(
-                                    height: 20,
-                                    width: 20,
+                                    height: 32,
+                                    width: 32,
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color:
@@ -218,7 +243,7 @@ class _BodyState extends State<_Body> {
                                         padding: EdgeInsets.all(0.0),
                                         icon: const Icon(
                                           Icons.create_rounded,
-                                          size: 10,
+                                          size: 16,
                                           color: Color.fromARGB(
                                               255, 101, 101, 101),
                                         ),
@@ -227,7 +252,7 @@ class _BodyState extends State<_Body> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   const EditProfilePage(
-                                                title: 'プロフィール編集',
+                                                title: '編集',
                                               ),
                                             ),
                                           );
@@ -243,10 +268,10 @@ class _BodyState extends State<_Body> {
                         ],
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 16,
                       ),
                       Text(
-                        data['firstName'] + ' ' + data['lastName'],
+                        data['firstName'],
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -262,188 +287,188 @@ class _BodyState extends State<_Body> {
             const SizedBox(
               height: 50,
             ),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    'アカウント',
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.grey, //色
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('フレンド'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      child:
-                          const Icon(Icons.account_circle, color: Colors.white),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('電話番号'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.local_phone_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('ダークモード'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.dark_mode_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    '設定',
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.grey, //色
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('通知'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.purple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    title: const Text('プライバシー'),
-                    leading: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Colors.purple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications,
-                        color: Colors.white,
-                      ),
-                    ),
-                    tileColor: Colors.white,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   child: const Padding(
+            //     padding: EdgeInsets.all(10.0),
+            //     child: Opacity(
+            //       opacity: 0.7,
+            //       child: Text(
+            //         'アカウント',
+            //         style: TextStyle(
+            //           fontSize: 15,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     boxShadow: const [
+            //       BoxShadow(
+            //         color: Colors.grey, //色
+            //       ),
+            //     ],
+            //     borderRadius: BorderRadius.circular(10),
+            //     color: Colors.white,
+            //   ),
+            //   child: Column(
+            //     children: [
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('フレンド'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.blue,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child:
+            //               const Icon(Icons.account_circle, color: Colors.white),
+            //         ),
+            //         trailing: const Icon(Icons.arrow_forward_ios),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('電話番号'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.green,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.local_phone_rounded,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('ダークモード'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.black,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.dark_mode_rounded,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 20,
+            // ),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   child: const Padding(
+            //     padding: EdgeInsets.all(10.0),
+            //     child: Opacity(
+            //       opacity: 0.7,
+            //       child: Text(
+            //         '設定',
+            //         style: TextStyle(
+            //           fontSize: 15,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     boxShadow: const [
+            //       BoxShadow(
+            //         color: Colors.grey, //色
+            //       ),
+            //     ],
+            //     borderRadius: BorderRadius.circular(10),
+            //     color: Colors.white,
+            //   ),
+            //   child: Column(
+            //     children: [
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('通知'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.purple,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.notifications,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //       ListTile(
+            //         shape: const RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.only(
+            //             topLeft: Radius.circular(10),
+            //             topRight: Radius.circular(10),
+            //             bottomRight: Radius.circular(10),
+            //             bottomLeft: Radius.circular(10),
+            //           ),
+            //         ),
+            //         title: const Text('プライバシー'),
+            //         leading: Container(
+            //           padding: const EdgeInsets.all(5),
+            //           decoration: const BoxDecoration(
+            //             color: Colors.purple,
+            //             shape: BoxShape.circle,
+            //           ),
+            //           child: const Icon(
+            //             Icons.notifications,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         tileColor: Colors.white,
+            //         onTap: () {},
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       );
