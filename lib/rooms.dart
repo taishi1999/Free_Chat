@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'chat.dart';
 import 'login.dart';
@@ -35,8 +36,8 @@ class _RoomsPageState extends State<RoomsPage> {
   void initState() {
     initializeFlutterFire();
     super.initState();
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    userData = FirebaseFirestore.instance.collection('users').doc(uid).get();
+    //final uid = FirebaseAuth.instance.currentUser?.uid;
+    //userData = FirebaseFirestore.instance.collection('users').doc(uid).get();
   }
 
   @override
@@ -106,12 +107,51 @@ class _RoomsPageState extends State<RoomsPage> {
     }
   }
 
+  void updateToken(User? user) async {
+    if (user != null) {
+      // User is signed in
+      final newToken = await FirebaseMessaging.instance.getToken();
+      if (newToken != null) {
+        final userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        final oldToken = userData.data()?['fcmToken'];
+
+        if (newToken != oldToken) {
+          print('update FCMtoken');
+          FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+            'fcmToken': newToken,
+          });
+        }
+
+        // Update user token in Firestore or any other database you're using
+      }
+    }
+  }
+
   void initializeFlutterFire() async {
     try {
       FirebaseAuth.instance.authStateChanges().listen((User? user) {
         setState(() {
           _user = user;
         });
+
+        if (user != null) {
+          // User is signed in
+          // update token
+          updateToken(user);
+
+          //todo await
+          // Get user data from Firestore
+          userData = FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+        } else {
+          // User is signed out
+          userData = null;
+        }
       });
       setState(() {
         _initialized = true;
