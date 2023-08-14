@@ -7,8 +7,11 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:share/share.dart';
 
 import 'chat.dart';
+import 'groups.dart';
 import 'login.dart';
 import 'my_page.dart';
 import 'profile.dart';
@@ -28,9 +31,24 @@ class RoomsPage extends StatefulWidget {
 class _RoomsPageState extends State<RoomsPage> {
   bool _error = false;
   bool _initialized = false;
+
   User? _user;
   bool _searchBoolean = false;
   Future<DocumentSnapshot<Map<String, dynamic>>>? userData;
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserData() async {
+    print('aa');
+    final uid = await FirebaseAuth.instance.currentUser?.uid;
+    final userData =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return userData;
+  }
+
+  void updateUserData() {
+    userData = getUserData();
+    setState(() {});
+    print('updateUserData');
+  }
 
   @override
   void initState() {
@@ -54,6 +72,8 @@ class _RoomsPageState extends State<RoomsPage> {
       appBar: _AppBar(
         title: 'メッセージ',
         userData: userData,
+        user: _user,
+        updateProfileHandler: updateUserData,
       ),
       body: _user != null
           ? FutureBuilder(
@@ -62,21 +82,20 @@ class _RoomsPageState extends State<RoomsPage> {
                 BuildContext context,
                 AsyncSnapshot<String?> snapshot,
               ) {
-                print('FutureBuilder is called');
                 if (snapshot.hasData) {
                   final uidParam = snapshot.data;
                   if (uidParam != null) {
-                    print('uidParam: $uidParam');
+                    //print('uidParam: $uidParam');
                     return ProfilePage(
                       uid: uidParam,
                       hasAppBar: false,
                     );
                   } else {
-                    print('uidParam: null');
+                    //print('uidParam: null');
                     return _displayRoomList();
                   }
                 } else {
-                  print('snpashot: null');
+                  //print('snpashot: null');
                   return _displayRoomList();
                 }
               },
@@ -85,14 +104,14 @@ class _RoomsPageState extends State<RoomsPage> {
 
       //),
       //body: _user != null ? _displayRoomList() : _navigatLogin(context),
-      floatingActionButton: _FloatingActionButton(
-        user: _user,
-      ),
+      // floatingActionButton: _FloatingActionButton(
+      //   user: _user,
+      // ),
     );
   }
 
   Future<String?> getDinamicLinkUidParam() async {
-    print("getDinamicLinkUidParam is called");
+    //print("getDinamicLinkUidParam is called");
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -119,7 +138,7 @@ class _RoomsPageState extends State<RoomsPage> {
         final oldToken = userData.data()?['fcmToken'];
 
         if (newToken != oldToken) {
-          print('update FCMtoken');
+          //print('update FCMtoken');
           FirebaseFirestore.instance.collection('users').doc(user.uid).update({
             'fcmToken': newToken,
           });
@@ -144,6 +163,7 @@ class _RoomsPageState extends State<RoomsPage> {
 
           //todo await
           // Get user data from Firestore
+          //updateUserData();
           userData = FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
@@ -193,17 +213,18 @@ class _RoomsPageState extends State<RoomsPage> {
   Widget _buildAvatar(types.Room room) {
     var color = Colors.transparent;
 
-    if (room.type == types.RoomType.direct) {
-      try {
-        final otherUser = room.users.firstWhere(
-          (u) => u.id != _user!.uid,
-        );
+    //ユーザーによって色を変更
+    // if (room.type == types.RoomType.direct) {
+    //   try {
+    //     final otherUser = room.users.firstWhere(
+    //       (u) => u.id != _user!.uid,
+    //     );
 
-        color = getUserAvatarNameColor(otherUser);
-      } catch (e) {
-        // Do nothing if other user is not found.
-      }
-    }
+    //     color = getUserAvatarNameColor(otherUser);
+    //   } catch (e) {
+    //     // Do nothing if other user is not found.
+    //   }
+    // }
 
     final hasImage = room.imageUrl != null;
     final name = room.name ?? '';
@@ -216,47 +237,100 @@ class _RoomsPageState extends State<RoomsPage> {
       }
     }
 
+    String emoji = '';
+    String backgroundColor = '';
+
+    if (hasImage && room.imageUrl!.startsWith('emoji')) {
+      String emojiUrl = room.imageUrl!;
+      List<String> parts = emojiUrl.split('/');
+      emoji = parts[1];
+
+      if (parts.length > 2) {
+        backgroundColor = parts[2];
+        Color parsedColor = Color(
+            int.parse(backgroundColor.substring(1, 9), radix: 16) + 0xFF000000);
+
+        color = parsedColor;
+      }
+    }
+
     return Container(
-      margin: const EdgeInsets.only(right: 16),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfilePage(
-                uid: id,
-                hasBackButton: false,
-              ),
-            ),
-          );
-        },
-        child: CircleAvatar(
-          backgroundColor: hasImage ? Colors.transparent : color,
-          backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
-          radius: 20,
-          child: !hasImage
-              ? Text(
-                  name.isEmpty ? '' : name[0].toUpperCase(),
-                  style: const TextStyle(color: Colors.white),
-                )
-              : null,
-        ),
+      height: 56,
+      width: 56,
+      child: CircleAvatar(
+        backgroundColor: hasImage && !room.imageUrl!.startsWith('emoji')
+            ? Colors.transparent
+            : color,
+        backgroundImage: hasImage && !room.imageUrl!.startsWith('emoji')
+            ? NetworkImage(room.imageUrl!)
+            : null,
+        //radius: 24,
+        child: !hasImage
+            ? Text(
+                name.isEmpty ? '' : name[0].toUpperCase(),
+                style: const TextStyle(color: Colors.black),
+              )
+            : room.imageUrl!.startsWith('emoji')
+                ? Text(
+                    emoji,
+                    style: TextStyle(
+                      fontSize: 40,
+                    ),
+                  )
+                : null,
       ),
+
+      // child: SizedBox(
+      //   //color: Colors.amber,
+      //   width: 70,
+      //   height: 70,
+      //   //padding: const EdgeInsets.only(right: 8),
+      //   child: IconButton(
+      //     //iconSize: 16,
+      //     onPressed: () {
+      //       // Navigator.push(
+      //       //   context,
+      //       //   MaterialPageRoute(
+      //       //     builder: (context) => ProfilePage(
+      //       //       uid: id,
+      //       //       hasBackButton: false,
+      //       //     ),
+      //       //   ),
+      //       // );
+      //     },
+      //     icon: CircleAvatar(
+      //       backgroundColor: hasImage ? Colors.transparent : color,
+      //       backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
+      //       radius: 20,
+      //       child: !hasImage
+      //           ? Text(
+      //               name.isEmpty ? '' : name[0].toUpperCase(),
+      //               style: const TextStyle(color: Colors.white),
+      //             )
+      //           : null,
+      //     ),
+      //   ),
+      // ),
     );
   }
 
   // Room一覧の表示.
   Widget _displayRoomList() => StreamBuilder<List<types.Room>>(
-        stream: FirebaseChatCore.instance.rooms(),
+        //orderByUpdatedAt: trueにしてメッセージ順に並び替え　firestoreのインデックスの設定が必要
+        stream: FirebaseChatCore.instance.rooms(orderByUpdatedAt: true),
         initialData: const [],
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+                child: CircularProgressIndicator()); // または他のローディングウィジェット
+          }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Container(
               alignment: Alignment.center,
               margin: const EdgeInsets.only(
                 bottom: 200,
               ),
-              child: const Text('No rooms'),
+              child: const Text('部屋がないよ'),
             );
           }
 
@@ -291,16 +365,30 @@ class _RoomsPageState extends State<RoomsPage> {
           final types.Message? message = loaded ? snapshot.data![0] : null;
           return ListTile(
             leading: _buildAvatar(room),
-            title: Text(
-              room.name ?? '',
-              maxLines: 1,
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    room.name ?? '',
+                    maxLines: 1,
+                  ),
+                ),
+                Text(
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    //fontWeight: FontWeight.bold,
+                  ),
+                  loaded ? getDateTimeRepresentation(message!.createdAt) : '',
+                ),
+              ],
             ),
-            trailing: Text(
-              loaded ? getDateTimeRepresentation(message!.createdAt) : '',
-            ),
+            // trailing: Text(
+            //   loaded ? getDateTimeRepresentation(message!.createdAt) : '',
+            // ),
             subtitle: Text(
               loaded
-                  ? '${getUserName(message!.author)}:${_getDisplayMessage(message)}'
+                  ? '${getUserName(message!.author)}: ${_getDisplayMessage(message)}'
                   : '',
               maxLines: 1,
             ),
@@ -368,10 +456,15 @@ class _AppBar extends StatefulWidget implements PreferredSizeWidget {
     Key? key,
     required this.title,
     required this.userData,
+    required this.user,
+    required this.updateProfileHandler,
   }) : super(key: key);
+
+  final User? user;
 
   final String title;
   final Future<DocumentSnapshot<Map<String, dynamic>>>? userData;
+  final Function updateProfileHandler;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -386,23 +479,10 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   void initState() {
-    try {
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
-        setState(() {
-          final uid = FirebaseAuth.instance.currentUser?.uid;
-          userData =
-              FirebaseFirestore.instance.collection('users').doc(uid).get();
-        });
-      });
-    } catch (e) {
-      setState(() {
-        print(e);
-      });
-    }
     searchBoolean = false;
     super.initState();
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    userData = FirebaseFirestore.instance.collection('users').doc(uid).get();
+    //final uid = FirebaseAuth.instance.currentUser?.uid;
+    //userData = FirebaseFirestore.instance.collection('users').doc(uid).get();
   }
 
   void logout() {
@@ -435,7 +515,7 @@ class _AppBarState extends State<_AppBar> {
         //         ),
         //       ],
         leading: FutureBuilder<DocumentSnapshot>(
-          future: userData,
+          future: widget.userData,
           builder: (
             BuildContext context,
             AsyncSnapshot<DocumentSnapshot> snapshot,
@@ -457,6 +537,7 @@ class _AppBarState extends State<_AppBar> {
               if (data['imageUrl'] is String && data['imageUrl'] != null) {
                 //imageProvider = AssetImage('images/unknown_icon.png');
                 imageProvider = NetworkImage(data['imageUrl'] as String);
+                //setState(() {});
               } else {
                 imageWidget = ClipOval(
                   child: SvgPicture.asset(
@@ -469,7 +550,7 @@ class _AppBarState extends State<_AppBar> {
               }
               return IconButton(
                 onPressed: () async {
-                  await Navigator.of(context).push(
+                  final result = await Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
                           const MyPage(),
@@ -489,8 +570,11 @@ class _AppBarState extends State<_AppBar> {
                       },
                     ),
                   );
+
+                  await widget.updateProfileHandler();
                 },
                 icon: CircleAvatar(
+                  backgroundColor: Colors.grey,
                   child: imageWidget,
                   backgroundImage: imageProvider,
                 ),
@@ -545,6 +629,139 @@ class _AppBarState extends State<_AppBar> {
             return Container();
           },
         ),
+        actions: [
+          PopupMenuButton(
+            offset: Offset(0, 56 + 8),
+            color: Color(0xff1d1c21),
+            iconSize: 40.0,
+            icon: Container(
+              width: 40,
+              //width: 36,
+              height: 40,
+              decoration: BoxDecoration(
+                //color: Colors.grey,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: 2,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem<int>(
+                value: 0,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(3, 0, 5.0, 0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: SvgPicture.asset(
+                          'images/user_add.svg',
+                          //'images/user_add.svg',
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '友達を追加',
+                      style: TextStyle(
+                        color: Colors.white,
+                        //fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 1,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 8.0, 0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: SvgPicture.asset(
+                          'images/users.svg',
+                          //'images/user_add.svg',
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '新規グループ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        //fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (value) async {
+              if (value == 0) {
+                final uid = await FirebaseAuth.instance.currentUser?.uid;
+                final dynamicLinkParams = DynamicLinkParameters(
+                  link: Uri.parse(
+                    'https://3358dynamiclinks.page.link/testaaaaa?uid=${uid}',
+                  ),
+                  uriPrefix: 'https://3358dynamiclinks.page.link',
+                  androidParameters: const AndroidParameters(
+                    packageName: 'com.example',
+                    //minimumVersion: 30,
+                  ),
+                  iosParameters: const IOSParameters(
+                    bundleId: 'com.example.app.ios',
+                    appStoreId: '123456789',
+                    minimumVersion: '1.0.1',
+                  ),
+                  googleAnalyticsParameters: const GoogleAnalyticsParameters(
+                    source: 'twitter',
+                    medium: 'social',
+                    campaign: 'example-promo',
+                  ),
+                  socialMetaTagParameters: SocialMetaTagParameters(
+                    title: 'Example of a Dynamic Link',
+                    imageUrl: Uri.parse(
+                      'https://example.com/image.png',
+                    ),
+                  ),
+                );
+                final dynamicLink =
+                    await FirebaseDynamicLinks.instance.buildShortLink(
+                  dynamicLinkParams,
+                );
+                Share.share(dynamicLink.shortUrl.toString());
+              } else if (value == 1) {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    fullscreenDialog: true,
+                    builder: (context) => GroupsPage(
+                      user: widget.user!,
+                      listSelectedUsers: [],
+                    ),
+                  ),
+                );
+              }
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(8.0),
+              ),
+            ),
+            elevation: .1,
+          ),
+        ],
         systemOverlayStyle: SystemUiOverlayStyle.light,
         centerTitle: true,
         title: Text(
@@ -577,86 +794,101 @@ class _FloatingActionButton extends StatelessWidget {
         onPressed: user == null
             ? null
             : () async {
-                var result = await showModalBottomSheet(
+                final result = await showModalBottomSheet(
                   context: context,
-                  isScrollControlled: true, //trueにしないと、Containerのheightが反映されない
+                  isScrollControlled:
+                      true, // Trueにしないと、Containerのheightが反映されない.
                   shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(15)),
                   ),
-                  builder: (BuildContext context) =>
-                      Column(mainAxisSize: MainAxisSize.min, children: [
-                    ListTile(
-                      title: const Text(
-                        '追加',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                  builder: (BuildContext context) => SafeArea(
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+                        child: const Text(
+                          '追加',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
-                      onTap: () => Navigator.of(context).pop(1),
-                    ),
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                          //color: Colors.grey,
-                          shape: BoxShape.circle,
+                      //onTap: () => Navigator.of(context).pop(1),
+
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            //color: Colors.grey,
+                            shape: BoxShape.circle,
+                          ),
+                          // child: const Icon(
+                          //   Icons.add_reaction_outlined,
+                          //   color: Colors.black,
+                          // ),
+                          child: SvgPicture.asset(
+                            'images/user_add.svg',
+                            //'images/user_add.svg',
+                            color: Colors.black,
+                          ),
+                          // child: AssetImage('images/user_add.svg') != null
+                          //     ? Image(
+                          //         color: Colors.black,
+                          //         image: AssetImage('images/user_add.svg'),
+                          //       )
+                          //     : Container(),
                         ),
-                        // child: const Icon(
-                        //   Icons.add_reaction_outlined,
-                        //   color: Colors.black,
-                        // ),
-                        child: SvgPicture.asset(
-                          'images/user_add.svg',
-                          color: Colors.black,
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        title: const Text(
+                          '新しいフレンド',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        // child: AssetImage('images/user_add.svg') != null
-                        //     ? Image(
-                        //         color: Colors.black,
-                        //         image: AssetImage('images/user_add.svg'),
-                        //       )
-                        //     : Container(),
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                      title: const Text(
-                        '新しいフレンド',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          fullscreenDialog: true,
-                          builder: (context) => const UsersPage(),
-                        ),
-                      ),
-                    ),
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(
-                          //color: Colors.blue,
-                          shape: BoxShape.circle,
-                        ),
-                        // child: const Icon(
-                        //   Icons.groups,
-                        //   color: Colors.black,
-                        // ),
-                        child: SvgPicture.asset(
-                          'images/users.svg',
-                          color: Colors.black,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            fullscreenDialog: true,
+                            builder: (context) => const UsersPage(),
+                          ),
                         ),
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                      title: const Text(
-                        'グループを作成',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            //color: Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          // child: const Icon(
+                          //   Icons.groups,
+                          //   color: Colors.black,
+                          // ),
+                          child: SvgPicture.asset(
+                            'images/users.svg',
+                            //'images/users.svg',
+                            color: Colors.black,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        title: const Text(
+                          'グループを作成',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            fullscreenDialog: true,
+                            builder: (context) => GroupsPage(
+                              user: user!,
+                              listSelectedUsers: [],
+                            ),
+                          ),
                         ),
                       ),
-                      onTap: () => Navigator.of(context).pop(2),
-                    ),
-                  ]),
+                    ]),
+                  ),
                 );
                 print('bottom sheet result: $result');
               },

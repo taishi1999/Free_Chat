@@ -76,7 +76,15 @@ class _AppBarState extends State<_AppBar> {
         //title: const Text('マイページ'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
+            padding: EdgeInsets.all(0),
+            icon: RotatedBox(
+              quarterTurns: 2,
+              child: SvgPicture.asset(
+                'images/arrow_left.svg',
+                width: 56,
+                color: Colors.white,
+              ),
+            ),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -163,70 +171,70 @@ class _BodyState extends State<_Body> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  SizedBox(
-                                    height: 32,
-                                    width: 32,
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        padding: EdgeInsets.all(0.0),
-                                        icon: const Icon(
-                                          Icons.qr_code,
-                                          size: 16,
-                                          color: Color.fromARGB(
-                                              255, 101, 101, 101),
-                                        ),
-                                        onPressed: () async {
-                                          final uid = await FirebaseAuth
-                                              .instance.currentUser?.uid;
-                                          final dynamicLinkParams =
-                                              DynamicLinkParameters(
-                                            link: Uri.parse(
-                                              'https://3358dynamiclinks.page.link/testaaaaa?uid=${uid}',
-                                            ),
-                                            uriPrefix:
-                                                'https://3358dynamiclinks.page.link',
-                                            androidParameters:
-                                                const AndroidParameters(
-                                              packageName: 'com.example',
-                                              //minimumVersion: 30,
-                                            ),
-                                            iosParameters: const IOSParameters(
-                                              bundleId: 'com.example.app.ios',
-                                              appStoreId: '123456789',
-                                              minimumVersion: '1.0.1',
-                                            ),
-                                            googleAnalyticsParameters:
-                                                const GoogleAnalyticsParameters(
-                                              source: 'twitter',
-                                              medium: 'social',
-                                              campaign: 'example-promo',
-                                            ),
-                                            socialMetaTagParameters:
-                                                SocialMetaTagParameters(
-                                              title:
-                                                  'Example of a Dynamic Link',
-                                              imageUrl: Uri.parse(
-                                                'https://example.com/image.png',
-                                              ),
-                                            ),
-                                          );
-                                          final dynamicLink =
-                                              await FirebaseDynamicLinks
-                                                  .instance
-                                                  .buildShortLink(
-                                            dynamicLinkParams,
-                                          );
-                                          Share.share(
-                                              dynamicLink.shortUrl.toString());
-                                        },
-                                      ),
-                                    ),
-                                  ),
+                                  // SizedBox(
+                                  //   height: 32,
+                                  //   width: 32,
+                                  //   child: Container(
+                                  //     decoration: const BoxDecoration(
+                                  //       color:
+                                  //           Color.fromARGB(255, 208, 208, 208),
+                                  //       shape: BoxShape.circle,
+                                  //     ),
+                                  //     child: IconButton(
+                                  //       padding: EdgeInsets.all(0.0),
+                                  //       icon: const Icon(
+                                  //         Icons.qr_code,
+                                  //         size: 16,
+                                  //         color: Color.fromARGB(
+                                  //             255, 101, 101, 101),
+                                  //       ),
+                                  //       onPressed: () async {
+                                  //         final uid = await FirebaseAuth
+                                  //             .instance.currentUser?.uid;
+                                  //         final dynamicLinkParams =
+                                  //             DynamicLinkParameters(
+                                  //           link: Uri.parse(
+                                  //             'https://3358dynamiclinks.page.link/testaaaaa?uid=${uid}',
+                                  //           ),
+                                  //           uriPrefix:
+                                  //               'https://3358dynamiclinks.page.link',
+                                  //           androidParameters:
+                                  //               const AndroidParameters(
+                                  //             packageName: 'com.example',
+                                  //             //minimumVersion: 30,
+                                  //           ),
+                                  //           iosParameters: const IOSParameters(
+                                  //             bundleId: 'com.example.app.ios',
+                                  //             appStoreId: '123456789',
+                                  //             minimumVersion: '1.0.1',
+                                  //           ),
+                                  //           googleAnalyticsParameters:
+                                  //               const GoogleAnalyticsParameters(
+                                  //             source: 'twitter',
+                                  //             medium: 'social',
+                                  //             campaign: 'example-promo',
+                                  //           ),
+                                  //           socialMetaTagParameters:
+                                  //               SocialMetaTagParameters(
+                                  //             title:
+                                  //                 'Example of a Dynamic Link',
+                                  //             imageUrl: Uri.parse(
+                                  //               'https://example.com/image.png',
+                                  //             ),
+                                  //           ),
+                                  //         );
+                                  //         final dynamicLink =
+                                  //             await FirebaseDynamicLinks
+                                  //                 .instance
+                                  //                 .buildShortLink(
+                                  //           dynamicLinkParams,
+                                  //         );
+                                  //         Share.share(
+                                  //             dynamicLink.shortUrl.toString());
+                                  //       },
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   const SizedBox(
                                     width: 8,
                                   ),
@@ -235,18 +243,22 @@ class _BodyState extends State<_Body> {
                                     width: 32,
                                     child: Container(
                                       decoration: const BoxDecoration(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
+                                        // color:
+                                        //     Color.fromARGB(255, 208, 208, 208),
                                         shape: BoxShape.circle,
                                       ),
                                       child: IconButton(
                                         padding: EdgeInsets.all(0.0),
-                                        icon: const Icon(
-                                          Icons.create_rounded,
-                                          size: 16,
-                                          color: Color.fromARGB(
-                                              255, 101, 101, 101),
+                                        icon: SvgPicture.asset(
+                                          'images/edit_pen_paper.svg',
+                                          color: Colors.grey.shade700,
                                         ),
+                                        // icon: const Icon(
+                                        //   Icons.create_rounded,
+                                        //   size: 16,
+                                        //   color: Color.fromARGB(
+                                        //       255, 101, 101, 101),
+                                        // ),
                                         onPressed: () async {
                                           await Navigator.of(context).push(
                                             MaterialPageRoute(

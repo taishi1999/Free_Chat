@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'util.dart';
 
@@ -49,19 +50,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     Future<void> _selectImage() async {
-      final PickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (PickedFile != null) {
-        imageFile = File(PickedFile.path);
-        isSelected = true;
+      //final picker = ImagePicker();
+      //PickedFile? pickedFile;
+      try {
+        //pickedFile = await picker.pickImage(source: ImageSource.gallery);
+        final PickedFile = await picker.pickImage(source: ImageSource.gallery);
+        if (PickedFile != null) {
+          imageFile = File(PickedFile.path);
+          isSelected = true;
+        }
+      } catch (e) {
+        print("エラーです: $e");
       }
     }
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff1d1c21),
+        leading: IconButton(
+          padding: EdgeInsets.all(0),
+          icon: SvgPicture.asset(
+            //'images/image.svg',
+            'images/arrow_left.svg',
+            width: 56,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         centerTitle: true,
         actions: [
           TextButton(
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.pressed)) {
+                  return Colors
+                      .transparent; // Use the color of your choice when pressed
+                }
+                return null; // Use the default value when not pressed
+              }),
+              splashFactory: NoSplash.splashFactory, // Disable splash
+            ),
             onPressed: isLoading
                 ? null
                 : () async {
@@ -92,15 +122,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     } catch (e) {
                       print(e);
                     } finally {
-                      setState(() {
-                        isLoading = false;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      }
                     }
                   },
             child: Text(
-              '保存',
+              '完了',
               style: TextStyle(
                 color: Colors.white,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -140,36 +173,63 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //Text('アイコン画像'),
-                      // const SizedBox(
-                      //   height: 10,
-                      // ),
                       Stack(
                         children: [
-                          SizedBox(
-                            height: 70,
-                            width: 70,
-                            child: InkWell(
-                              onTap: () async {
-                                await _selectImage();
-                                setState(() {});
-                              },
-                              child: CircleAvatar(
-                                backgroundImage: imageFile != null
-                                    ? Image.file(imageFile!).image
-                                    : NetworkImage(data['imageUrl']),
+                          Container(
+                            child: SizedBox(
+                              height: 70,
+                              width: 70,
+                              child: IconButton(
+                                //iconSize: 70,
+                                padding: EdgeInsets.zero,
+                                onPressed: () async {
+                                  await _selectImage();
+                                  setState(() {});
+                                },
+                                icon: CircleAvatar(
+                                  radius: 35,
+                                  backgroundImage: imageFile != null
+                                      ? Image.file(imageFile!).image
+                                      : NetworkImage(data['imageUrl']),
+                                ),
                               ),
                             ),
                           ),
-                          Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Image.asset(
-                              'images/camera.png',
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: IgnorePointer(
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  // border: Border.all(
+                                  //   width: 4,
+                                  //   color: Colors.grey.shade50,
+                                  // ),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      //offset: Offset(10, 10),
+                                      blurRadius: 10.0,
+                                      //spreadRadius: 1.0,
+                                    ),
+                                  ],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    width: 12,
+                                    height: 12,
+                                    child: SvgPicture.asset(
+                                      'images/edit_pen.svg',
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],

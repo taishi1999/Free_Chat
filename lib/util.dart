@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:intl/intl.dart';
 
 const colors = [
@@ -49,7 +50,8 @@ String getVerboseDateTimeRepresentation(
     return formattedTime;
   }
 
-  return '$formattedDate, $formattedTime';
+  return DateFormat('M/d').format(dateTime);
+  //return '$formattedDate, $formattedTime';
 }
 
 /// 日付を表示する（flutter_chat_ui_editと同じ形式）.
@@ -58,3 +60,10 @@ String getDateTimeRepresentation(int? timestamp) => timestamp == null
     : getVerboseDateTimeRepresentation(
         DateTime.fromMillisecondsSinceEpoch(timestamp),
       );
+
+FirebaseChatCoreConfig getFirebaseChatCoreConfig() =>
+    const FirebaseChatCoreConfig(
+      null,
+      'rooms',
+      'users',
+    );
