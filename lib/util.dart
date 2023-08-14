@@ -50,7 +50,8 @@ String getVerboseDateTimeRepresentation(
     return formattedTime;
   }
 
-  return '$formattedDate, $formattedTime';
+  return DateFormat('M/d').format(dateTime);
+  //return '$formattedDate, $formattedTime';
 }
 
 /// 日付を表示する（flutter_chat_ui_editと同じ形式）.
