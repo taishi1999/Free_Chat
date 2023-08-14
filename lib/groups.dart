@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-//import 'package:faker/faker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:getwidget/getwidget.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -52,14 +50,16 @@ class _GroupsPageState extends State<GroupsPage> {
     '🍻',
     '👺',
     '👊',
+    '🫨',
+    '🌞',
   ];
 
   final List<Color> backgroundColors = [
     Colors.lightGreen,
-    Colors.lime,
     Colors.amber,
-    Colors.lightBlueAccent.shade100,
-    Colors.yellow.shade600,
+    Colors.lightBlueAccent.shade200,
+    //Colors.lime,
+    //Colors.yellow.shade600,
     //Colors.deepPurple.shade200,
     //Colors.brown.shade300,
     //Colors.grey.shade800,
@@ -126,10 +126,7 @@ class _GroupsPageState extends State<GroupsPage> {
   @override
   Widget build(BuildContext context) {
     Future<void> _selectImage() async {
-      //final picker = ImagePicker();
-      //PickedFile? pickedFile;
       try {
-        //pickedFile = await picker.pickImage(source: ImageSource.gallery);
         final PickedFile = await picker.pickImage(source: ImageSource.gallery);
         if (PickedFile != null) {
           imageFile = File(PickedFile.path);
@@ -294,20 +291,13 @@ class _GroupsPageState extends State<GroupsPage> {
                               child: Stack(
                                 children: [
                                   Padding(
+                                    //listviewの画像の再利用を防ぐkey
                                     key: ValueKey(selectedItem.id),
                                     padding: const EdgeInsets.all(8.0),
                                     child: UserAvatar(
                                       user: selectedItem,
                                       size: 24,
                                     ),
-                                    // child: CircleAvatar(
-                                    //   //listviewの再利用を防ぐ(追加、除去時の画像が再利用され不自然)
-
-                                    //   // ここで各ユーザーの情報を使用してCircleAvatarをカスタマイズ
-                                    //   backgroundImage: NetworkImage(
-                                    //       selectedItem.imageUrl!),
-                                    //   radius: 24,
-                                    // ),
                                   ),
                                   Positioned(
                                     right: 0,
@@ -327,12 +317,7 @@ class _GroupsPageState extends State<GroupsPage> {
                                             width: 16,
                                             height: 16,
                                             decoration: BoxDecoration(
-                                              // border: Border.all(
-                                              //   width: 4,
-                                              //   color: Colors.grey.shade50,
-                                              // ),
                                               color: Colors.grey.shade800,
-
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Align(
