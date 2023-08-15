@@ -321,8 +321,11 @@ class _RoomsPageState extends State<RoomsPage> {
         initialData: const [],
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-                child: CircularProgressIndicator()); // または他のローディングウィジェット
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+              ),
+            ); // または他のローディングウィジェット
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Container(

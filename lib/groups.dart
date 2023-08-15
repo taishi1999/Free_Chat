@@ -34,7 +34,6 @@ class _GroupsPageState extends State<GroupsPage> {
     '🐔',
     '🐟',
     '🦐',
-    '🌵',
     '🌴',
     '🧀',
     '🥑',
@@ -42,7 +41,6 @@ class _GroupsPageState extends State<GroupsPage> {
     '🍍',
     '🥖',
     '🍡',
-    '☁️',
     '🗻',
     '🌊',
     '🍟',
@@ -51,13 +49,12 @@ class _GroupsPageState extends State<GroupsPage> {
     '👺',
     '👊',
     '🫨',
-    '🌞',
   ];
 
   final List<Color> backgroundColors = [
     Colors.lightGreen,
     Colors.amber,
-    Colors.lightBlueAccent.shade200,
+    Colors.lightBlue.shade200,
     //Colors.lime,
     //Colors.yellow.shade600,
     //Colors.deepPurple.shade200,
@@ -349,7 +346,12 @@ class _GroupsPageState extends State<GroupsPage> {
                         margin: const EdgeInsets.only(
                           bottom: 200,
                         ),
-                        child: Center(child: const CircularProgressIndicator()),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.grey),
+                          ),
+                        ),
                       );
                     }
 
@@ -406,7 +408,11 @@ class _GroupsPageState extends State<GroupsPage> {
             ],
           ),
           Center(
-            child: isLoading ? const CircularProgressIndicator() : null,
+            child: isLoading
+                ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                  )
+                : null,
           ),
         ],
       ),
