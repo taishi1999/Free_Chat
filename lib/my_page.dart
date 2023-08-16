@@ -76,12 +76,12 @@ class _AppBarState extends State<_AppBar> {
         //title: const Text('マイページ'),
         actions: [
           IconButton(
-            padding: EdgeInsets.all(0),
+            padding: EdgeInsets.zero,
             icon: RotatedBox(
               quarterTurns: 2,
               child: SvgPicture.asset(
                 'images/arrow_left.svg',
-                width: 56,
+                width: 48,
                 color: Colors.white,
               ),
             ),

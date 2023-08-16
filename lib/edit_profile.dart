@@ -68,11 +68,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         backgroundColor: Color(0xff1d1c21),
         leading: IconButton(
-          padding: EdgeInsets.all(0),
+          padding: EdgeInsets.zero,
           icon: SvgPicture.asset(
             //'images/image.svg',
             'images/arrow_left.svg',
-            width: 56,
+            width: 48,
             color: Colors.white,
           ),
           onPressed: () {

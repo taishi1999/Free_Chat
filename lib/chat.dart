@@ -36,16 +36,26 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: _isAppBarVisible
             ? AppBar(
-                // leading: Image.asset(
-                //   'assets/icon-pen.png',
-                //   color: Colors.black,
-                //   package: 'flutter_chat_ui_edit',
-                // ),
-
-                //leading: Image.asset('images/icon-pen.png'),
+                leading: IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: SvgPicture.asset(
+                    'images/arrow_left.svg',
+                    width: 48,
+                    color: Colors.white,
+                  ),
+                ),
                 backgroundColor: Color(0xff1d1c21),
                 systemOverlayStyle: SystemUiOverlayStyle.light,
-                title: Text(widget.room.name ?? 'Chat'),
+                title: Text(
+                  widget.room.name ?? 'Chat',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               )
             : null,
         body: StreamBuilder<types.Room>(
@@ -57,12 +67,9 @@ class _ChatPageState extends State<ChatPage> {
             builder: (context, snapshot) => Chat(
               penIcon: SvgPicture.asset(
                 'images/pen.svg',
-                //color: Colors.black,
               ),
-              //penIcon: AssetImage('images/pen.png'),
               imageIcon: SvgPicture.asset(
                 'images/image.svg',
-                //color: Colors.black,
               ),
               undoIcon: (bool b) {
                 return SvgPicture.asset(
@@ -72,7 +79,6 @@ class _ChatPageState extends State<ChatPage> {
               },
               sendIcon: SvgPicture.asset(
                 'images/send_circle_blue_32.svg',
-                //color: Colors.black,
               ),
               //sendIcon: AssetImage('images/send_circle_blue_32.png'),
               isAttachmentUploading: _isAttachmentUploading,

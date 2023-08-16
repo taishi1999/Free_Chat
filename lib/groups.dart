@@ -34,6 +34,7 @@ class _GroupsPageState extends State<GroupsPage> {
     '🐔',
     '🐟',
     '🦐',
+    '🌵',
     '🌴',
     '🧀',
     '🥑',
