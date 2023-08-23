@@ -47,76 +47,74 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            systemOverlayStyle: SystemUiOverlayStyle.light,
-            title: const Text('Register'),
-          ),
-          body: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.only(top: 80, left: 24, right: 24),
-              child: Column(
-                children: [
-                  TextField(
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+          title: const Text('Register'),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.only(top: 80, left: 24, right: 24),
+            child: Column(
+              children: [
+                TextField(
+                  autocorrect: false,
+                  autofillHints: _registering ? null : [AutofillHints.email],
+                  autofocus: true,
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8),
+                      ),
+                    ),
+                    labelText: 'Email',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.cancel),
+                      onPressed: () => _usernameController?.clear(),
+                    ),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  onEditingComplete: () {
+                    _focusNode?.requestFocus();
+                  },
+                  readOnly: _registering,
+                  textCapitalization: TextCapitalization.none,
+                  textInputAction: TextInputAction.next,
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: TextField(
                     autocorrect: false,
-                    autofillHints: _registering ? null : [AutofillHints.email],
-                    autofocus: true,
-                    controller: _usernameController,
+                    autofillHints:
+                        _registering ? null : [AutofillHints.password],
+                    controller: _passwordController,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(8),
                         ),
                       ),
-                      labelText: 'Email',
+                      labelText: 'Password',
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.cancel),
-                        onPressed: () => _usernameController?.clear(),
+                        onPressed: () => _passwordController?.clear(),
                       ),
                     ),
+                    focusNode: _focusNode,
                     keyboardType: TextInputType.emailAddress,
-                    onEditingComplete: () {
-                      _focusNode?.requestFocus();
-                    },
-                    readOnly: _registering,
+                    obscureText: true,
+                    onEditingComplete: _register,
                     textCapitalization: TextCapitalization.none,
-                    textInputAction: TextInputAction.next,
+                    textInputAction: TextInputAction.done,
                   ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: TextField(
-                      autocorrect: false,
-                      autofillHints:
-                          _registering ? null : [AutofillHints.password],
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(8),
-                          ),
-                        ),
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.cancel),
-                          onPressed: () => _passwordController?.clear(),
-                        ),
-                      ),
-                      focusNode: _focusNode,
-                      keyboardType: TextInputType.emailAddress,
-                      obscureText: true,
-                      onEditingComplete: _register,
-                      textCapitalization: TextCapitalization.none,
-                      textInputAction: TextInputAction.done,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: _registering ? null : _register,
-                    child: const Text('Register'),
-                  ),
-                ],
-              ),
+                ),
+                TextButton(
+                  onPressed: _registering ? null : _register,
+                  child: const Text('Register'),
+                ),
+              ],
             ),
           ),
         ),

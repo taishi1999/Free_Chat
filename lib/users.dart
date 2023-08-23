@@ -11,65 +11,63 @@ class UsersPage extends StatelessWidget {
   const UsersPage({super.key});
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => RoomsPage(),
-                  ),
-                );
-              },
-            ),
-            systemOverlayStyle: SystemUiOverlayStyle.light,
-            backgroundColor: Color(0xff1d1c21),
-
-            //title: const Text('Users'),
-          ),
-          body: StreamBuilder<List<types.User>>(
-            stream: FirebaseChatCore.instance.users(),
-            initialData: const [],
-            builder: (context, snapshot) {
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Container(
-                  alignment: Alignment.center,
-                  margin: const EdgeInsets.only(
-                    bottom: 200,
-                  ),
-                  child: const Text('No users'),
-                );
-              }
-
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  final user = snapshot.data![index];
-
-                  return GestureDetector(
-                    onTap: () {
-                      _handlePressed(user, context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          _buildAvatar(user),
-                          Text(getUserName(user)),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => RoomsPage(),
+                ),
               );
             },
           ),
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+          backgroundColor: Color(0xff1d1c21),
+
+          //title: const Text('Users'),
+        ),
+        body: StreamBuilder<List<types.User>>(
+          stream: FirebaseChatCore.instance.users(),
+          initialData: const [],
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.only(
+                  bottom: 200,
+                ),
+                child: const Text('No users'),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final user = snapshot.data![index];
+
+                return GestureDetector(
+                  onTap: () {
+                    _handlePressed(user, context);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        _buildAvatar(user),
+                        Text(getUserName(user)),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
         ),
       );
 

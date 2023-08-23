@@ -68,47 +68,45 @@ class _RoomsPageState extends State<RoomsPage> {
       return Container();
     }
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: _AppBar(
-          title: 'メッセージ',
-          userData: userData,
-          user: _user,
-          updateProfileHandler: updateUserData,
-        ),
-        body: _user != null
-            ? FutureBuilder(
-                future: getDinamicLinkUidParam(),
-                builder: (
-                  BuildContext context,
-                  AsyncSnapshot<String?> snapshot,
-                ) {
-                  if (snapshot.hasData) {
-                    final uidParam = snapshot.data;
-                    if (uidParam != null) {
-                      //print('uidParam: $uidParam');
-                      return ProfilePage(
-                        uid: uidParam,
-                        hasAppBar: false,
-                      );
-                    } else {
-                      //print('uidParam: null');
-                      return _displayRoomList();
-                    }
+    return Scaffold(
+      appBar: _AppBar(
+        title: 'メッセージ',
+        userData: userData,
+        user: _user,
+        updateProfileHandler: updateUserData,
+      ),
+      body: _user != null
+          ? FutureBuilder(
+              future: getDinamicLinkUidParam(),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<String?> snapshot,
+              ) {
+                if (snapshot.hasData) {
+                  final uidParam = snapshot.data;
+                  if (uidParam != null) {
+                    //print('uidParam: $uidParam');
+                    return ProfilePage(
+                      uid: uidParam,
+                      hasAppBar: false,
+                    );
                   } else {
-                    //print('snpashot: null');
+                    //print('uidParam: null');
                     return _displayRoomList();
                   }
-                },
-              )
-            : _navigatLogin(context),
+                } else {
+                  //print('snpashot: null');
+                  return _displayRoomList();
+                }
+              },
+            )
+          : _navigatLogin(context),
 
-        //),
-        //body: _user != null ? _displayRoomList() : _navigatLogin(context),
-        // floatingActionButton: _FloatingActionButton(
-        //   user: _user,
-        // ),
-      ),
+      //),
+      //body: _user != null ? _displayRoomList() : _navigatLogin(context),
+      // floatingActionButton: _FloatingActionButton(
+      //   user: _user,
+      // ),
     );
   }
 

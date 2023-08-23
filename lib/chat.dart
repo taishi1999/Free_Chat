@@ -33,34 +33,35 @@ class _ChatPageState extends State<ChatPage> {
   bool _isAppBarVisible = true;
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: Scaffold(
-          appBar: _isAppBarVisible
-              ? AppBar(
-                  elevation: 0,
-                  leading: IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: SvgPicture.asset(
-                      'images/arrow_left.svg',
-                      width: 48,
-                      color: Colors.white,
-                    ),
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Color(0xff1d1c21),
+        appBar: _isAppBarVisible
+            ? AppBar(
+                elevation: 0,
+                leading: IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: SvgPicture.asset(
+                    'images/arrow_left.svg',
+                    width: 48,
+                    color: Colors.white,
                   ),
-                  backgroundColor: Color(0xff1d1c21),
-                  systemOverlayStyle: SystemUiOverlayStyle.light,
-                  title: Text(
-                    widget.room.name ?? 'Chat',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+                backgroundColor: Color(0xff1d1c21),
+                systemOverlayStyle: SystemUiOverlayStyle.light,
+                title: Text(
+                  widget.room.name ?? 'Chat',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                )
-              : null,
-          body: StreamBuilder<types.Room>(
+                ),
+              )
+            : null,
+        body: SafeArea(
+          child: StreamBuilder<types.Room>(
             initialData: widget.room,
             stream: FirebaseChatCore.instance.room(widget.room.id),
             builder: (context, snapshot) => StreamBuilder<List<types.Message>>(

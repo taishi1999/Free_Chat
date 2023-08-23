@@ -37,13 +37,11 @@ class _MyPageState extends State<MyPage> {
   }
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: Scaffold(
-          appBar: const _AppBar(),
-          body: _Body(
-            userData: userData,
-            updateProfileHandler: updateUserData,
-          ),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: const _AppBar(),
+        body: _Body(
+          userData: userData,
+          updateProfileHandler: updateUserData,
         ),
       );
 }
@@ -75,8 +73,11 @@ class _AppBarState extends State<_AppBar> {
         //backgroundColor: Colors.transparent,
         backgroundColor: Color(0xff1d1c21),
         leading: Container(),
-        centerTitle: false,
-        //title: const Text('マイページ'),
+        //centerTitle: false,
+        title: const Text(
+          'マイページ',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             padding: EdgeInsets.zero,
