@@ -37,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return widget.hasAppBar
         ? Scaffold(
             appBar: AppBar(
+              elevation: 0,
               backgroundColor: Color(0xff1d1c21),
               //title: Text('プロフィール'),
             ),

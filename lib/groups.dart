@@ -34,30 +34,25 @@ class _GroupsPageState extends State<GroupsPage> {
     '🐔',
     '🐟',
     '🦐',
-    '🌵',
     '🌴',
     '🧀',
     '🥑',
     '🍉',
     '🍍',
     '🥖',
-    '🍡',
-    '☁️',
     '🗻',
     '🌊',
     '🍟',
     '🗿',
-    '🍻',
     '👺',
     '👊',
     '🫨',
-    '🌞',
   ];
 
   final List<Color> backgroundColors = [
     Colors.lightGreen,
     Colors.amber,
-    Colors.lightBlueAccent.shade200,
+    Colors.lightBlue.shade200,
     //Colors.lime,
     //Colors.yellow.shade600,
     //Colors.deepPurple.shade200,
@@ -139,6 +134,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Color(0xff1d1c21),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -349,7 +345,12 @@ class _GroupsPageState extends State<GroupsPage> {
                         margin: const EdgeInsets.only(
                           bottom: 200,
                         ),
-                        child: Center(child: const CircularProgressIndicator()),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.grey),
+                          ),
+                        ),
                       );
                     }
 
@@ -406,7 +407,11 @@ class _GroupsPageState extends State<GroupsPage> {
             ],
           ),
           Center(
-            child: isLoading ? const CircularProgressIndicator() : null,
+            child: isLoading
+                ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                  )
+                : null,
           ),
         ],
       ),
@@ -525,8 +530,7 @@ class _LoadingTextButtonState extends State<LoadingTextButton> {
 
                 if (widget.isIconSelected) {
                   final storageRef = FirebaseStorage.instance
-                      .ref()
-                      .child('group/${room.id}/imageUrl');
+                      .ref('Icon/group/${room.id}/imageUrl');
                   await storageRef.putFile(widget.imageFile!);
 
                   final uri = await storageRef.getDownloadURL();

@@ -38,7 +38,7 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: _AppBar(),
+        appBar: const _AppBar(),
         body: _Body(
           userData: userData,
           updateProfileHandler: updateUserData,
@@ -69,19 +69,23 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        elevation: 0,
         //backgroundColor: Colors.transparent,
         backgroundColor: Color(0xff1d1c21),
         leading: Container(),
-        centerTitle: false,
-        //title: const Text('マイページ'),
+        //centerTitle: false,
+        title: const Text(
+          'マイページ',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
-            padding: EdgeInsets.all(0),
+            padding: EdgeInsets.zero,
             icon: RotatedBox(
               quarterTurns: 2,
               child: SvgPicture.asset(
                 'images/arrow_left.svg',
-                width: 56,
+                width: 48,
                 color: Colors.white,
               ),
             ),

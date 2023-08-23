@@ -13,6 +13,7 @@ class UsersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {

@@ -49,6 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          elevation: 0,
           systemOverlayStyle: SystemUiOverlayStyle.light,
           title: const Text('Register'),
         ),

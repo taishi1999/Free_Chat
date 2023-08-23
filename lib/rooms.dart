@@ -139,7 +139,10 @@ class _RoomsPageState extends State<RoomsPage> {
 
         if (newToken != oldToken) {
           //print('update FCMtoken');
-          FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .update({
             'fcmToken': newToken,
           });
         }
@@ -254,7 +257,7 @@ class _RoomsPageState extends State<RoomsPage> {
       }
     }
 
-    return Container(
+    return SizedBox(
       height: 56,
       width: 56,
       child: CircleAvatar(
@@ -273,7 +276,7 @@ class _RoomsPageState extends State<RoomsPage> {
             : room.imageUrl!.startsWith('emoji')
                 ? Text(
                     emoji,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 40,
                     ),
                   )
@@ -321,8 +324,11 @@ class _RoomsPageState extends State<RoomsPage> {
         initialData: const [],
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-                child: CircularProgressIndicator()); // または他のローディングウィジェット
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+              ),
+            );
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Container(
@@ -371,10 +377,14 @@ class _RoomsPageState extends State<RoomsPage> {
                   child: Text(
                     room.name ?? '',
                     maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Text(
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 12,
                     //fontWeight: FontWeight.bold,
@@ -491,6 +501,7 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        elevation: 0,
         backgroundColor: Color(0xff1d1c21),
         // - 検索ボタン -
         // actions: !searchBoolean!
@@ -543,7 +554,6 @@ class _AppBarState extends State<_AppBar> {
                   child: SvgPicture.asset(
                     'images/unknown_icon.svg',
                     width: 70,
-                    //color: Colors.black,
                   ),
                 );
                 imageProvider = transparentImage;
@@ -664,16 +674,15 @@ class _AppBarState extends State<_AppBar> {
                         height: 24,
                         child: SvgPicture.asset(
                           'images/user_add.svg',
-                          //'images/user_add.svg',
                           color: Colors.white,
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       '友達を追加',
                       style: TextStyle(
                         color: Colors.white,
-                        //fontSize: 16,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -691,16 +700,15 @@ class _AppBarState extends State<_AppBar> {
                         height: 24,
                         child: SvgPicture.asset(
                           'images/users.svg',
-                          //'images/user_add.svg',
                           color: Colors.white,
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       '新規グループ',
                       style: TextStyle(
                         color: Colors.white,
-                        //fontSize: 16,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -748,25 +756,25 @@ class _AppBarState extends State<_AppBar> {
                     fullscreenDialog: true,
                     builder: (context) => GroupsPage(
                       user: widget.user!,
-                      listSelectedUsers: [],
+                      listSelectedUsers: List.from([]),
                     ),
                   ),
                 );
               }
             },
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
                 Radius.circular(8.0),
               ),
             ),
-            elevation: .1,
+            elevation: 0,
           ),
         ],
         systemOverlayStyle: SystemUiOverlayStyle.light,
         centerTitle: true,
         title: Text(
           widget.title,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -802,93 +810,91 @@ class _FloatingActionButton extends StatelessWidget {
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(15)),
                   ),
-                  builder: (BuildContext context) => SafeArea(
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-                        child: const Text(
-                          '追加',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                  builder: (BuildContext context) =>
+                      Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
+                      child: Text(
+                        '追加',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
-                      //onTap: () => Navigator.of(context).pop(1),
+                    ),
+                    //onTap: () => Navigator.of(context).pop(1),
 
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            //color: Colors.grey,
-                            shape: BoxShape.circle,
-                          ),
-                          // child: const Icon(
-                          //   Icons.add_reaction_outlined,
-                          //   color: Colors.black,
-                          // ),
-                          child: SvgPicture.asset(
-                            'images/user_add.svg',
-                            //'images/user_add.svg',
-                            color: Colors.black,
-                          ),
-                          // child: AssetImage('images/user_add.svg') != null
-                          //     ? Image(
-                          //         color: Colors.black,
-                          //         image: AssetImage('images/user_add.svg'),
-                          //       )
-                          //     : Container(),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          //color: Colors.grey,
+                          shape: BoxShape.circle,
                         ),
-                        trailing: const Icon(Icons.arrow_forward_ios),
-                        title: const Text(
-                          '新しいフレンド',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        // child: const Icon(
+                        //   Icons.add_reaction_outlined,
+                        //   color: Colors.black,
+                        // ),
+                        child: SvgPicture.asset(
+                          'images/user_add.svg',
+                          color: Colors.black,
                         ),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            fullscreenDialog: true,
-                            builder: (context) => const UsersPage(),
+                        // child: AssetImage('images/user_add.svg') != null
+                        //     ? Image(
+                        //         color: Colors.black,
+                        //         image: AssetImage('images/user_add.svg'),
+                        //       )
+                        //     : Container(),
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      title: const Text(
+                        '新しいフレンド',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          fullscreenDialog: true,
+                          builder: (context) => const UsersPage(),
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          //color: Colors.blue,
+                          shape: BoxShape.circle,
+                        ),
+                        // child: const Icon(
+                        //   Icons.groups,
+                        //   color: Colors.black,
+                        // ),
+                        child: SvgPicture.asset(
+                          'images/users.svg',
+                          //'images/users.svg',
+                          color: Colors.black,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      title: const Text(
+                        'グループを作成',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          fullscreenDialog: true,
+                          builder: (context) => GroupsPage(
+                            user: user!,
+                            listSelectedUsers: List.from([]),
                           ),
                         ),
                       ),
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            //color: Colors.blue,
-                            shape: BoxShape.circle,
-                          ),
-                          // child: const Icon(
-                          //   Icons.groups,
-                          //   color: Colors.black,
-                          // ),
-                          child: SvgPicture.asset(
-                            'images/users.svg',
-                            //'images/users.svg',
-                            color: Colors.black,
-                          ),
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios),
-                        title: const Text(
-                          'グループを作成',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            fullscreenDialog: true,
-                            builder: (context) => GroupsPage(
-                              user: user!,
-                              listSelectedUsers: [],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]),
-                  ),
+                    ),
+                  ]),
                 );
                 print('bottom sheet result: $result');
               },

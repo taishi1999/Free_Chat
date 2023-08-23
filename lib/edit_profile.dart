@@ -66,13 +66,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Color(0xff1d1c21),
         leading: IconButton(
-          padding: EdgeInsets.all(0),
+          padding: EdgeInsets.zero,
           icon: SvgPicture.asset(
             //'images/image.svg',
             'images/arrow_left.svg',
-            width: 56,
+            width: 48,
             color: Colors.white,
           ),
           onPressed: () {
@@ -106,7 +107,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       //アイコン画像を変更していたらcloud Storageへアップロードする
                       if (isSelected) {
                         final reference = FirebaseStorage.instance
-                            .ref('users/${uid!}/imageUrl');
+                            .ref('Icon/users/${uid!}/imageUrl');
                         await reference.putFile(imageFile!);
                         final uri = await reference.getDownloadURL();
                         data['imageUrl'] = uri;
@@ -148,8 +149,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         ),
       ),
-      body: Container(
-        //alignment: Alignment.centerLeft,
+      body: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
