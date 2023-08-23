@@ -37,11 +37,13 @@ class _MyPageState extends State<MyPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: _AppBar(),
-        body: _Body(
-          userData: userData,
-          updateProfileHandler: updateUserData,
+  Widget build(BuildContext context) => SafeArea(
+        child: Scaffold(
+          appBar: const _AppBar(),
+          body: _Body(
+            userData: userData,
+            updateProfileHandler: updateUserData,
+          ),
         ),
       );
 }
@@ -69,6 +71,7 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) => AppBar(
+        elevation: 0,
         //backgroundColor: Colors.transparent,
         backgroundColor: Color(0xff1d1c21),
         leading: Container(),

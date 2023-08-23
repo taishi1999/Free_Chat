@@ -137,6 +137,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Color(0xff1d1c21),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -532,8 +533,7 @@ class _LoadingTextButtonState extends State<LoadingTextButton> {
 
                 if (widget.isIconSelected) {
                   final storageRef = FirebaseStorage.instance
-                      .ref()
-                      .child('group/${room.id}/imageUrl');
+                      .ref('Icon/group/${room.id}/imageUrl');
                   await storageRef.putFile(widget.imageFile!);
 
                   final uri = await storageRef.getDownloadURL();

@@ -33,68 +33,71 @@ class _ChatPageState extends State<ChatPage> {
   bool _isAppBarVisible = true;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: _isAppBarVisible
-            ? AppBar(
-                leading: IconButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: SvgPicture.asset(
-                    'images/arrow_left.svg',
-                    width: 48,
-                    color: Colors.white,
+  Widget build(BuildContext context) => SafeArea(
+        child: Scaffold(
+          appBar: _isAppBarVisible
+              ? AppBar(
+                  elevation: 0,
+                  leading: IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: SvgPicture.asset(
+                      'images/arrow_left.svg',
+                      width: 48,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                backgroundColor: Color(0xff1d1c21),
-                systemOverlayStyle: SystemUiOverlayStyle.light,
-                title: Text(
-                  widget.room.name ?? 'Chat',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  backgroundColor: Color(0xff1d1c21),
+                  systemOverlayStyle: SystemUiOverlayStyle.light,
+                  title: Text(
+                    widget.room.name ?? 'Chat',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                )
+              : null,
+          body: StreamBuilder<types.Room>(
+            initialData: widget.room,
+            stream: FirebaseChatCore.instance.room(widget.room.id),
+            builder: (context, snapshot) => StreamBuilder<List<types.Message>>(
+              initialData: const [],
+              stream: FirebaseChatCore.instance.messages(snapshot.data!),
+              builder: (context, snapshot) => Chat(
+                penIcon: SvgPicture.asset(
+                  'images/pen.svg',
                 ),
-              )
-            : null,
-        body: StreamBuilder<types.Room>(
-          initialData: widget.room,
-          stream: FirebaseChatCore.instance.room(widget.room.id),
-          builder: (context, snapshot) => StreamBuilder<List<types.Message>>(
-            initialData: const [],
-            stream: FirebaseChatCore.instance.messages(snapshot.data!),
-            builder: (context, snapshot) => Chat(
-              penIcon: SvgPicture.asset(
-                'images/pen.svg',
-              ),
-              imageIcon: SvgPicture.asset(
-                'images/image.svg',
-              ),
-              undoIcon: (bool b) {
-                return SvgPicture.asset(
-                  'images/undo.svg',
-                  color: b ? Colors.grey[700] : Colors.white,
-                );
-              },
-              sendIcon: SvgPicture.asset(
-                'images/send_circle_blue_32.svg',
-              ),
-              //sendIcon: AssetImage('images/send_circle_blue_32.png'),
-              isAttachmentUploading: _isAttachmentUploading,
-              messages: snapshot.data ?? [],
-              onAttachmentPressed: _handleAtachmentPressed,
-              onMessageTap: _handleMessageTap,
-              onPenPressed: _handlePenPressed,
-              onPreviewDataFetched: _handlePreviewDataFetched,
-              onSendPressed: _handleSendPressed,
-              showUserAvatars: true,
-              showUserNames: true,
-              scrollPhysics: _isAppBarVisible
-                  ? ClampingScrollPhysics()
-                  : NeverScrollableScrollPhysics(),
-              user: types.User(
-                id: FirebaseChatCore.instance.firebaseUser?.uid ?? '',
+                imageIcon: SvgPicture.asset(
+                  'images/image.svg',
+                ),
+                undoIcon: (bool b) {
+                  return SvgPicture.asset(
+                    'images/undo.svg',
+                    color: b ? Colors.grey[700] : Colors.white,
+                  );
+                },
+                sendIcon: SvgPicture.asset(
+                  'images/send_circle_blue_32.svg',
+                ),
+                //sendIcon: AssetImage('images/send_circle_blue_32.png'),
+                isAttachmentUploading: _isAttachmentUploading,
+                messages: snapshot.data ?? [],
+                onAttachmentPressed: _handleAtachmentPressed,
+                onMessageTap: _handleMessageTap,
+                onPenPressed: _handlePenPressed,
+                onPreviewDataFetched: _handlePreviewDataFetched,
+                onSendPressed: _handleSendPressed,
+                showUserAvatars: true,
+                showUserNames: true,
+                scrollPhysics: _isAppBarVisible
+                    ? ClampingScrollPhysics()
+                    : NeverScrollableScrollPhysics(),
+                user: types.User(
+                  id: FirebaseChatCore.instance.firebaseUser?.uid ?? '',
+                ),
               ),
             ),
           ),
@@ -192,7 +195,8 @@ class _ChatPageState extends State<ChatPage> {
       final name = result.name;
 
       try {
-        final reference = FirebaseStorage.instance.ref(name);
+        final reference =
+            FirebaseStorage.instance.ref('Image/${widget.room.id}/${name}');
         await reference.putFile(file);
         final uri = await reference.getDownloadURL();
 

@@ -35,16 +35,19 @@ class _ProfilePageState extends State<ProfilePage> {
         FirebaseFirestore.instance.collection('users').doc(widget.uid).get();
 
     return widget.hasAppBar
-        ? Scaffold(
-            appBar: AppBar(
-              backgroundColor: Color(0xff1d1c21),
-              //title: Text('プロフィール'),
-            ),
-            body: _BodyContent(
-              userData: userData,
-              widget: widget,
-              users: users,
-              hasBackButton: widget.hasBackButton,
+        ? SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                elevation: 0,
+                backgroundColor: Color(0xff1d1c21),
+                //title: Text('プロフィール'),
+              ),
+              body: _BodyContent(
+                userData: userData,
+                widget: widget,
+                users: users,
+                hasBackButton: widget.hasBackButton,
+              ),
             ),
           )
         : _BodyContent(
