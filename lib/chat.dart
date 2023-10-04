@@ -32,11 +32,23 @@ class _ChatPageState extends State<ChatPage> {
   bool _isAttachmentUploading = false;
   bool _isAppBarVisible = true;
 
+  GlobalKey appBarKey = GlobalKey();
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Color(0xff1d1c21),
-        appBar: _isAppBarVisible
-            ? AppBar(
+  Widget build(BuildContext context) {
+    double statusBarHeight = MediaQuery.of(context).padding.top;
+    print('statusBarHeight: $statusBarHeight');
+    // final RenderBox renderBox =
+    //     appBarKey.currentContext!.findRenderObject() as RenderBox;
+    // final appBarHeight = renderBox.size.height;
+    // print('AppBar Height: $appBarHeight');
+    return Scaffold(
+      backgroundColor: Color(0xff1d1c21),
+      appBar: _isAppBarVisible
+          ? PreferredSize(
+              key: appBarKey,
+              preferredSize: Size.fromHeight(kToolbarHeight),
+              child: AppBar(
                 elevation: 0,
                 leading: IconButton(
                   padding: EdgeInsets.zero,
@@ -58,52 +70,54 @@ class _ChatPageState extends State<ChatPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
-            : null,
-        body: SafeArea(
-          child: StreamBuilder<types.Room>(
-            initialData: widget.room,
-            stream: FirebaseChatCore.instance.room(widget.room.id),
-            builder: (context, snapshot) => StreamBuilder<List<types.Message>>(
-              initialData: const [],
-              stream: FirebaseChatCore.instance.messages(snapshot.data!),
-              builder: (context, snapshot) => Chat(
-                penIcon: SvgPicture.asset(
-                  'images/pen.svg',
-                ),
-                imageIcon: SvgPicture.asset(
-                  'images/image.svg',
-                ),
-                undoIcon: (bool b) {
-                  return SvgPicture.asset(
-                    'images/undo.svg',
-                    color: b ? Colors.grey[700] : Colors.white,
-                  );
-                },
-                sendIcon: SvgPicture.asset(
-                  'images/send_circle_blue_32.svg',
-                ),
-                //sendIcon: AssetImage('images/send_circle_blue_32.png'),
-                isAttachmentUploading: _isAttachmentUploading,
-                messages: snapshot.data ?? [],
-                onAttachmentPressed: _handleAtachmentPressed,
-                onMessageTap: _handleMessageTap,
-                onPenPressed: _handlePenPressed,
-                onPreviewDataFetched: _handlePreviewDataFetched,
-                onSendPressed: _handleSendPressed,
-                showUserAvatars: true,
-                showUserNames: true,
-                scrollPhysics: _isAppBarVisible
-                    ? ClampingScrollPhysics()
-                    : NeverScrollableScrollPhysics(),
-                user: types.User(
-                  id: FirebaseChatCore.instance.firebaseUser?.uid ?? '',
-                ),
+              ),
+            )
+          : null,
+      body: SafeArea(
+        child: StreamBuilder<types.Room>(
+          initialData: widget.room,
+          stream: FirebaseChatCore.instance.room(widget.room.id),
+          builder: (context, snapshot) => StreamBuilder<List<types.Message>>(
+            initialData: const [],
+            stream: FirebaseChatCore.instance.messages(snapshot.data!),
+            builder: (context, snapshot) => Chat(
+              penIcon: SvgPicture.asset(
+                'images/pen.svg',
+              ),
+              imageIcon: SvgPicture.asset(
+                'images/image.svg',
+              ),
+              undoIcon: (bool b) {
+                return SvgPicture.asset(
+                  'images/undo.svg',
+                  color: b ? Colors.grey[700] : Colors.white,
+                );
+              },
+              sendIcon: SvgPicture.asset(
+                'images/send_circle_blue_32.svg',
+              ),
+              //sendIcon: AssetImage('images/send_circle_blue_32.png'),
+              isAttachmentUploading: _isAttachmentUploading,
+              messages: snapshot.data ?? [],
+              onAttachmentPressed: _handleAtachmentPressed,
+              onMessageTap: _handleMessageTap,
+              onPenPressed: _handlePenPressed,
+              onPreviewDataFetched: _handlePreviewDataFetched,
+              onSendPressed: _handleSendPressed,
+              showUserAvatars: true,
+              showUserNames: true,
+              scrollPhysics: _isAppBarVisible
+                  ? ClampingScrollPhysics()
+                  : NeverScrollableScrollPhysics(),
+              user: types.User(
+                id: FirebaseChatCore.instance.firebaseUser?.uid ?? '',
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   void _handleAtachmentPressed() {
     _handleImageSelection();
@@ -221,6 +235,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleMessageTap(BuildContext _, types.Message message) async {
+    print('message.id: ${message.id}');
     if (message is types.FileMessage) {
       var localPath = message.uri;
 
@@ -259,7 +274,6 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {
       _isAppBarVisible = !_isAppBarVisible;
     });
-    print('_handlePenPressed');
     if (mapPaint == null || mapPaint.isEmpty) {
       return;
     }

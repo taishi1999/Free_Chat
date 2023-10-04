@@ -97,8 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
       String? roomId;
       if (message.data.containsKey('roomId')) {
         roomId = message.data['roomId'];
-        print('tapppp!!');
-        print('roomId: $roomId');
+        // print('tapppp!!');
+        // print('roomId: $roomId');
         navigateToChatPage(roomId!);
 
         // final room = getRoom(roomId!);
